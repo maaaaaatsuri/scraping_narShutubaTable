@@ -68,6 +68,7 @@ class RaceInfoAnalyzer():
 
     # 出馬表スクレイピング関数(仮)、引数に"年"、"s_jyoCode"、"月"、"日"、"レースナンバー"を入力
     def scrape_shutuba_table(self, year, s_jyoCode, month, day, raceNum):
+        # インスタンス変数にする必要なし
         self.year = year
         self.s_jyoCode = s_jyoCode
         self.month = month
@@ -152,10 +153,16 @@ class RaceInfoAnalyzer():
 
 # ---------------------------ここまでが関数内---------------------------------
 
-
+# やりたいこと：レース情報を出力したい
 test = RaceInfoAnalyzer()
+
+# スクレイピングしてー
 test.scrape_shutuba_table(2021, s_jyoCode, 9, 8, 10)
+
+# 成形してー
 test.molding_data()
+
+# 出力
 test.output()
 
 
