@@ -10,19 +10,17 @@ import pandas as pd
 import re
 
 
-# ---競馬場コードを格納する辞書を作るため、keyとして場名、valueとして場コードNo.を抽出する---
-
+# ----------競馬場コードを格納する辞書を作る。key=場名、value=場コードNo.-----------
 url = "https://nar.netkeiba.com/racecourse/racecourse_list.html?rf=sidemenu"
 response = req.urlopen(url)
 parse_html = BeautifulSoup(response, "html.parser")
 
 # aタグ-textから場名、-href属性から場コード を抽出
 tags_a = parse_html.find_all('a')
-# print(tags_a)
-# print(tags_a[21:36])＊＊要改良＊＊
 
 jyo_text = []
 jyo_cd = []
+# 手動でタグのindexを指定しているため要改良
 for a in tags_a[21:36]:
     text = a.text
 
@@ -39,8 +37,6 @@ def flatten_2d(data):
         for elem in block:
             yield elem
 jyo_cd = list(flatten_2d(jyo_cd))
-# print(jyo_text)
-# print(jyo_cd)
 
 
 # jyo_cdリスト をint型に変換
@@ -49,89 +45,63 @@ jyo_cd_int = [int(i) for i in jyo_cd]
 
 # dict{場名: 場コード}が一旦完成
 jyo_dict = dict(zip(jyo_text, jyo_cd_int))
-# print(jyo_dict)
-
-# ----------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 
-
-# --------------------------出馬表スクレイピング部分------------------------------
-
+# -------------------------出馬表スクレイピング部分----------------------------
 # 競馬場名を入力して、jyo_cdを取得(仮)
-s_jyoCode = jyo_dict['門別競馬場']
+s_jyo_code = jyo_dict['門別競馬場']
 
 # 出馬表スクレイピングクラス(仮)
-class ShutubaTable():
-    
+class RaceInfoAnalyzer():
     def __init__(self):
         self.shutuba_table = pd.DataFrame()
 
     # 出馬表スクレイピング関数(仮)、引数に"年"、"s_jyoCode"、"月"、"日"、"レースナンバー"を入力
-    def scrape_ShutubaTable(self, year, s_jyoCode, month, day, raceNum):
-        self.year = year
-        self.s_jyoCode = s_jyoCode
-        self.month = month
-        self.day = day
-        self.raceNum = raceNum
+    def scraping_shutuba_table(self, year, s_jyo_code, month, day, race_num):
         
         # 引数からレースIDを作成
-        raceId = str(self.year) + str(self.s_jyoCode).zfill(2) + str(self.month).zfill(2) + str(self.day).zfill(2) + str(self.raceNum).zfill(2)
-        raceId = int(raceId)
+        race_id = str(year) + str(s_jyo_code).zfill(2) + str(month).zfill(2) + str(day).zfill(2) + str(race_num).zfill(2)
+        race_id = int(race_id)
         
         # 指定レースから最終レースまでのレースIDをリストに格納
-        raceId_lst = []
-        race_counts = self.raceNum
+        race_id_lst = []
+        race_counts = race_num
         i = 0
         while race_counts <= 12:
-            raceId_lst.append(str(raceId))
-            raceId += 1
+            race_id_lst.append(str(race_id))
+            race_id += 1
             race_counts += 1
-        # print(raceId_lst)
 
         # 出馬表自動取得
         self.shutuba_table = pd.DataFrame()
         browser = webdriver.Chrome(ChromeDriverManager().install())
-        for raceId in raceId_lst:
-            url = 'https://nar.netkeiba.com/race/shutuba.html?race_id=' + str(raceId)
+        for race_id in race_id_lst:
+            url = 'https://nar.netkeiba.com/race/shutuba.html?race_id=' + str(race_id)
             browser.get(url)
-            elements = browser.find_elements_by_class_name('HorseList')
-            for element in elements:
-                tds = element.find_elements_by_tag_name('td')
+            elems = browser.find_elements_by_class_name('HorseList')
+            for elem in elems:
+                tds = elem.find_elements_by_tag_name('td')
                 row = []
                 for td in tds:
                     row.append(td.text)
-                self.shutuba_table = self.shutuba_table.append(pd.Series(row, name=raceId))
+                self.shutuba_table = self.shutuba_table.append(pd.Series(row, name=race_id))
 
-        print(self.shutuba_table, '\n'*4)
+        print(self.shutuba_table, '\n'*3)
         browser.quit()
-
-# ----------------------------------------------------------------------------
-
+# -------------------------------------------------------------------------
 
 
-# ----------------------------データ成型部分(仮)---------------------------------
+# -------------------------データ成型部分(仮)---------------------------------
 
-        # table.columns
+    def molding_data(self):
 
         # 不要列削除、カラム名変更
         self.shutuba_table = self.shutuba_table[[0, 1, 3, 6, 7, 9]]
-        table_new = self.shutuba_table.set_axis(['枠番','馬番','馬名','騎手','厩舎','オッズ'], axis='columns')
-        # table_new
+        self.table_new = self.shutuba_table.set_axis(['枠番','馬番','馬名','騎手','厩舎','オッズ'], axis='columns')
 
-        # table_new.dtypes
-        # table_new.index
-        # Index(['202130083101', '202130083101', '202130083101', '202130083101',
-        #        '202130083101', '202130083101', '202130083101', '202130083101',
-        #        '202130083102', '202130083102',
-        #        ...
-        #        '202130083112', '202130083112', '202130083112', '202130083112',
-        #        '202130083112', '202130083112', '202130083112', '202130083112',
-        #        '202130083112', '202130083112'],
-        #       dtype='object', length=118)
-
-
-        # rowName(レースID)をレースNo.に表示変更
-        table_new = table_new.rename(index={
+        # rowName(レースID)をレースNo.に表示変更(要改良)
+        table_new = self.table_new.rename(index={
             '202130090801':'1R', '202130090802':'2R',
             '202130090803':'3R', '202130090804':'4R',
             '202130090805':'5R', '202130090806':'6R',
@@ -139,33 +109,35 @@ class ShutubaTable():
             '202130090809':'9R', '202130090810':'10R',
             '202130090811':'11R', '202130090812':'12R',
         })
-        # print(table_new)
-
 
         #騎手列抽出
-        Jockey_lst = table_new.loc[::, '騎手']
-        Jockey_lst
+        self.jockey_lst = table_new.loc[::, '騎手']
 
         # 重複削除
-        Jockey_lst = Jockey_lst.drop_duplicates()
-        Jockey_lst
+        self.jockey_lst = self.jockey_lst.drop_duplicates()
+# -------------------------------------------------------------------------
 
-        # 騎手名リスト作成、
-        jockey_name = []
-        for j in Jockey_lst:
-            jockey_name.append(j)
-        # print(jockey_name)
+
+# -----------------------------データ出力部分(仮)-----------------------------
+    def output(self):
 
         # 騎手ごとのレース情報
-        for j in Jockey_lst:
-            k = table_new.query('騎手 == "{}"'.format(j))
+        for j in self.jockey_lst:
+            k = self.table_new.query('騎手 == "{}"'.format(j))
             print(k,'\n'*2)
+# -------------------------------------------------------------------------
 
-# ---------------------------ここまでが関数内---------------------------------
+
+# やりたいこと：レース情報を出力したい
+test = RaceInfoAnalyzer()
+# スクレイピング
+test.scraping_shutuba_table(2021, s_jyo_code, 9, 8, 10)
+# データ成形
+test.molding_data()
+# データ出力
+test.output()
 
 
-test = ShutubaTable()
-test.scrape_ShutubaTable(2021, s_jyoCode, 9, 8, 10)
 
 
 
