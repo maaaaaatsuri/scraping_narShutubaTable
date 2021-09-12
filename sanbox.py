@@ -17,7 +17,7 @@ print(cat_2.hige)
 
 cat_1.add_beard()
 
-for i in range(100):
+for i in range(300):
     cat_2.add_beard()
 
 print("猫の髭の本数（足した後）")
