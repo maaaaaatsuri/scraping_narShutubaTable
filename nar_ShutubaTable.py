@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import re
 
+from aaaaa.bbbbb.utils import Utils
+
 
 # ----------競馬場コードを格納する辞書を作る。key=場名、value=場コードNo.------------
 url = "https://nar.netkeiba.com/racecourse/racecourse_list.html?rf=sidemenu"
@@ -30,13 +32,7 @@ for a in tags_a[21:36]:
     jyo_text.append(text.replace('\n', ''))
     jyo_cd.append(href)
 
-    
-#　場コードの多重リストを解消
-def flatten_2d(data):
-    for block in data:
-        for elem in block:
-            yield elem
-jyo_cd = list(flatten_2d(jyo_cd))
+jyo_cd = list(Utils.flatten_2d(jyo_cd))
 
 # jyo_cd をint型に変換
 jyo_cd_int = [int(i) for i in jyo_cd]
@@ -116,13 +112,7 @@ class RaceInfoAnalyzer():
 
         all_rev_num.append(indiv_rev_num[::-1])
 
-
-        #　all_rev_numの多重リストの解消
-        def flatten_2d(data):
-            for block in data:
-                for elem in block:
-                    yield elem
-        all_rev_num = list(flatten_2d(all_rev_num))
+        all_rev_num = list(Utils.flatten_2d(all_rev_num))
         self.clipping_table['裏馬番'] = all_rev_num
 
         print(self.clipping_table)
