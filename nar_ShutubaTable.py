@@ -20,7 +20,7 @@ tags_a = parse_html.find_all('a')
 
 jyo_text = []
 jyo_cd = []
-# 手動でタグのindexを指定しているため要改良
+# 手動で対象タグのindex番号を指定しているため要改良
 for a in tags_a[21:36]:
     text = a.text
 
@@ -129,14 +129,19 @@ class RaceInfoAnalyzer():
         
         
         # row_name(レースID)をレースNo.に表示変更(要改良)
-        # self.clipping_table = self.clipping_table.rename(index={
-        #     '202130090801':'1R', '202130090802':'2R',
-        #     '202130090803':'3R', '202130090804':'4R',
-        #     '202130090805':'5R', '202130090806':'6R',
-        #     '202130090807':'7R', '202130090808':'8R',
-        #     '202130090809':'9R', '202130090810':'10R',
-        #     '202130090811':'11R', '202130090812':'12R',
-        # })
+        i_lst = []
+        for i in self.clipping_table.index:
+            i_lst.append(str(i)[-2:])
+        self.clipping_table.index = i_lst
+
+        self.clipping_table = self.clipping_table.rename(index={
+            '01': '1R', '02': '2R',
+            '03': '3R', '04': '4R',
+            '05': '5R', '06': '6R',
+            '07': '7R', '08': '8R',
+            '09': '9R', '10': '10R',
+            '11': '11R', '12': '12R',})
+
 
         # 騎手列抽出
         self.jockey_lst = self.clipping_table.loc[::, '騎手']
