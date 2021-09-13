@@ -4,10 +4,12 @@
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 import urllib.request as req
-import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
+from python_utils.utils import Utils
+
+pd.set_option('display.unicode.east_asian_width', True)
 
 
 # ----------競馬場コードを格納する辞書を作る。key=場名、value=場コードNo.------------
@@ -15,7 +17,6 @@ url = "https://nar.netkeiba.com/racecourse/racecourse_list.html?rf=sidemenu"
 response = req.urlopen(url)
 parse_html = BeautifulSoup(response, "html.parser")
 
-# aタグ-textから場名、-href属性から場コード を抽出
 tags_a = parse_html.find_all('a')
 
 jyo_text = []
@@ -30,24 +31,15 @@ for a in tags_a[21:36]:
     jyo_text.append(text.replace('\n', ''))
     jyo_cd.append(href)
 
-    
-#　場コードの多重リストを解消
-def flatten_2d(data):
-    for block in data:
-        for elem in block:
-            yield elem
-jyo_cd = list(flatten_2d(jyo_cd))
+jyo_cd = list(Utils.flatten_2d(jyo_cd))
 
-# jyo_cd をint型に変換
+
 jyo_cd_int = [int(i) for i in jyo_cd]
-
-# dict{場名: 場コード}が一旦完成
 jyo_dict = dict(zip(jyo_text, jyo_cd_int))
 # -------------------------------------------------------------------------
 
 # -------------------------出馬表スクレイピング部分----------------------------
-# 競馬場名を入力して、jyo_cdを取得(仮)
-selected_code = jyo_dict['大井競馬場']
+selected_code = jyo_dict['川崎競馬場']
 
 # レース情報分析クラス
 class RaceInfoAnalyzer():
@@ -57,11 +49,9 @@ class RaceInfoAnalyzer():
     # 出馬表スクレイピング関数、引数に("年"、"selected_code"、"月"、"日"、"レースナンバー")を入力
     def scraping_shutuba_table(self, year, selected_code, month, day, race_num):
         
-        # 引数からレースIDを作成
         race_id = str(year) + str(selected_code).zfill(2) + str(month).zfill(2) + str(day).zfill(2) + str(race_num).zfill(2)
         race_id = int(race_id)
         
-        # 指定レースから最終レースまでのレースIDをリストに格納
         race_id_lst = []
         race_counts = race_num
         while race_counts <= 12:
@@ -91,7 +81,6 @@ class RaceInfoAnalyzer():
         # 不要列削除、全てのカラム名を変更(set.axis)
         self.clipping_table = self.shutuba_table.drop([2, 4, 5, 8, 10, 11, 12], axis=1)
         self.clipping_table = self.clipping_table.set_axis(['枠番','馬番','馬名','騎手','厩舎','オッズ'], axis=1)
-
         # 裏馬番カラムの追加と並び替え
         self.clipping_table = self.clipping_table.reindex(['枠番','馬番','裏馬番','馬名','騎手','厩舎','オッズ'], axis=1)
         
@@ -116,19 +105,11 @@ class RaceInfoAnalyzer():
 
         all_rev_num.append(indiv_rev_num[::-1])
 
-
-        #　all_rev_numの多重リストの解消
-        def flatten_2d(data):
-            for block in data:
-                for elem in block:
-                    yield elem
-        all_rev_num = list(flatten_2d(all_rev_num))
+        all_rev_num = list(Utils.flatten_2d(all_rev_num))
         self.clipping_table['裏馬番'] = all_rev_num
+        print(self.clipping_table, "\n"*2)
 
-        print(self.clipping_table)
-        
-        
-        # row_name(レースID)をレースNo.に表示変更(要改良)
+
         i_lst = []
         for i in self.clipping_table.index:
             i_lst.append(str(i)[-2:])
@@ -142,32 +123,38 @@ class RaceInfoAnalyzer():
             '09': '9R', '10': '10R',
             '11': '11R', '12': '12R',})
 
-
-        # 騎手列抽出
+        # 騎手列抽出、値の重複削除
         self.jockey_lst = self.clipping_table.loc[::, '騎手']
-
-        # 重複削除
         self.jockey_lst = self.jockey_lst.drop_duplicates()
+
+        # 厩舎列抽出、値の重複削除
+        self.stable_lst = self.clipping_table.loc[::, '厩舎']
+        self.stable_lst = self.stable_lst.drop_duplicates()
 # -------------------------------------------------------------------------
 
-# ---------------------------データ出力部分(仮)-------------------------------
-    def output(self):
-
+# ---------------------------データ出力部分(騎手テーブル)-------------------------------
+    def output_jocky_table(self):
         # 騎手ごとのレース情報を出力
         for j in self.jockey_lst:
-            focus_jockey_table = self.clipping_table.query('騎手 == "{}"'.format(j))
-            print(focus_jockey_table,'\n'*2)
+            self.focus_jockey_table = self.clipping_table.query('騎手 == "{}"'.format(j))
+            print(self.focus_jockey_table, '\n'*2)
 # -------------------------------------------------------------------------
+# ---------------------------データ出力部分(厩舎テーブル)-------------------------------
+    def output_stable_table(self):
+        # 厩舎ごとのレース情報を出力
+        for s in self.stable_lst:
+            self.focus_stable_table = self.clipping_table.query('厩舎 == "{}"'.format(s))
+            print(self.focus_stable_table, '\n'*2)
+# -------------------------------------------------------------------------
+
 
 # やりたいこと：レース情報を出力したい
 test = RaceInfoAnalyzer()
 # スクレイピング
-test.scraping_shutuba_table(2021, selected_code, 9, 10, 1)
+test.scraping_shutuba_table(2021, selected_code, 9, 13, 10)
 # データ成形
 test.molding_data()
+
 # データ出力
-test.output()
-
-
-
-
+test.output_jocky_table()
+# test.output_stable_table()
