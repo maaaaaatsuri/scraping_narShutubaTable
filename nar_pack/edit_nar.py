@@ -156,7 +156,7 @@ class RaceInfoAnalyzer():
 
 
 if __name__ == '__main__':
-    a = RaceInfoAnalyzer('川崎競馬場')
-    a.scraping_shutuba_table(2021, 10, 11, 9)
+    a = RaceInfoAnalyzer('門別競馬場')
+    a.scraping_shutuba_table(2021, 10, 12, 9)
     a.scraping_race_result()
     a.save_db()
