@@ -1,6 +1,5 @@
 
 
-
 class Utils():
     
     def flatten_2d(data):

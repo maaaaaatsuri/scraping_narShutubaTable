@@ -6,12 +6,10 @@ from typing import *
 
 
 class VenueCodeCreator():
-    # 競馬場コードを格納する辞書を作る。{例 -> '帯広競馬場': 65, ...}
     def fetch_venue_dict(self):
         url = "https://nar.netkeiba.com/racecourse/racecourse_list.html?rf=sidemenu"
         response = req.urlopen(url)
         parse_html = BeautifulSoup(response, "html.parser")
-
         tags_a = parse_html.find_all('a')
 
         venue_text = []

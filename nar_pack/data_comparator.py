@@ -1,16 +1,13 @@
 
+
 class DataComparator():
     def compare_data(self, new_data, old_data):
 
         if len(new_data) != len(old_data):
-            print('要素数に差異あり')
             return False
-
         else:
-            for i in range(len(new_data) - 1):
-                if new_data[i + 1] != old_data[i + 1]:
-                    print('第1差異内容表示 -> ', 'new',new_data[i + 1], 'old',old_data[i + 1])
+            for i in range(1, len(new_data)):
+                if new_data[i] != old_data[i]:
+                    print('第1差異内容 -> ', '更新前',old_data[i], '  更新後',new_data[i])
                     return False
-
-        print('差異なし')
         return True

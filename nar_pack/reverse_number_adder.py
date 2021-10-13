@@ -3,11 +3,11 @@ from typing import *
 
 
 class ReverseNumberAdder():
-    # 逆番カラム追加メソッド
     def add_reverse_number(self, data):
         indiv_rev_num = []
         all_rev_num = []
         temp = 1
+        
         for value in data.index:
             while value:
                 if temp == 1 or value == previous_value:

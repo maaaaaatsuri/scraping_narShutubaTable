@@ -1,6 +1,7 @@
+
+
 class RaceNumberAdder():
     def add_race_number(self, data):
-        # レース(番号)カラム追加
         i_lst = []
         for i in data.index:
             i_lst.append(str(i)[-2:])
@@ -12,6 +13,8 @@ class RaceNumberAdder():
             '05': '5R', '06': '6R',
             '07': '7R', '08': '8R',
             '09': '9R', '10': '10R',
-            '11': '11R', '12': '12R'})
+            '11': '11R', '12': '12R'
+            })
+
         data['レース'] = data.index
         return data
