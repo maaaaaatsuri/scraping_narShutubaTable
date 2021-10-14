@@ -5,6 +5,7 @@ from venue_code_creator import VenueCodeCreator
 from reverse_number_adder import ReverseNumberAdder
 from race_number_adder import RaceNumberAdder
 from data_comparator import DataComparator
+from type_changer import TypeChanger
 import time
 import sqlite3
 import sys
@@ -18,6 +19,7 @@ class RaceInfoAnalyzer():
         venue_code_creator = VenueCodeCreator()
         self.venue_dict = venue_code_creator.fetch_venue_dict()
         self.selected_venue = self.venue_dict[venue]
+        self.type_changer = TypeChanger()
 # =======================================出馬表スクレイピング========================================================
     def scraping_shutuba_table(self, year, month, day, race_num):
         
@@ -70,7 +72,12 @@ class RaceInfoAnalyzer():
         reverse_number_adder = ReverseNumberAdder()
         self.shutuba_table = reverse_number_adder.add_reverse_number(self.shutuba_table)
 
-        
+        # 対象カラムのデータ型をDBに合わせて変換
+        self.shutuba_table['枠'] = self.type_changer.change_to_int(self.shutuba_table['枠'])
+        self.shutuba_table['馬番'] = self.type_changer.change_to_int(self.shutuba_table['馬番'])
+        self.shutuba_table['人気'] = self.type_changer.change_to_int(self.shutuba_table['人気'])
+        self.shutuba_table['単勝オッズ'] = self.type_changer.change_to_float(self.shutuba_table['単勝オッズ'])
+
         self.shutuba_table = self.shutuba_table[[
             '開催日','開催場所','レース','着順','枠','馬番','逆番',
             '印','馬名','騎手','厩舎','単勝オッズ','人気'
@@ -97,7 +104,7 @@ class RaceInfoAnalyzer():
                 i = 0
                 while k != self.shutuba_table['馬名'][i]:
                     i += 1
-                self.shutuba_table['着順'][i] = name_rank_dict[k]
+                self.shutuba_table['着順'][i] = self.type_changer.result_int(name_rank_dict[k])
         print('='*5,'【 レ ー ス 結 果 】','='*80, '\n', self.shutuba_table, '\n')
 
         self.browser.quit()
@@ -129,15 +136,15 @@ class RaceInfoAnalyzer():
                 old_row = old_row[0]
                 if not data_comparator.compare_data(new_row, old_row):
                     sql_update = 'UPDATE nar SET 着順 = ?, 印 = ?, 騎手 = ?, 単勝オッズ = ?, 人気 = ?  WHERE 開催日 = ? AND 馬名 = ?'
-                    update_data = (new_row[4], new_row[8], new_row[10], new_row[12], new_row[13],   new_row[1], new_row[9])
+                    update_data = (new_row[4], new_row[8], new_row[10], new_row[12], new_row[13],   new_row[1], new_row[9])                    
                     print('update ->', update_data, '\n')
                     cur.execute(sql_update, update_data)
-
                 else:
                     pass
 
         conn.commit()
         conn.close()
+
 
 
 if __name__ == '__main__':
@@ -146,4 +153,3 @@ if __name__ == '__main__':
     hoge.scraping_shutuba_table(args[2], args[3], args[4], int(args[5]))
     hoge.scraping_race_result()
     hoge.save_db()
-
