@@ -9,6 +9,8 @@ from type_changer import TypeChanger
 import time
 import sqlite3
 import sys
+from selenium.webdriver.chrome.options import Options
+
 
 
 # レース情報分析クラス(コマンドライン引数に["開催場所"、"年"、"月"、"日"、"レースナンバー"]を入力)
@@ -36,7 +38,9 @@ class RaceInfoAnalyzer():
             
         # 出馬表を取得
         self.shutuba_table = pd.DataFrame()
-        self.browser = webdriver.Chrome(ChromeDriverManager().install())
+        options = Options()
+        options.add_argument('--headless')
+        self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         time.sleep(1)
         for race_id in self.race_id_lst:
             url = 'https://nar.netkeiba.com/race/shutuba.html?race_id=' + str(race_id)
