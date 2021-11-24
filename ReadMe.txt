@@ -1,29 +1,28 @@
-# 地方競馬出馬表スクレイピングアプリ
+アプリ名：
+　地方競馬出馬表スクレイピングアプリ
 概要：
-　WEBサイト"https://nar.netkeiba.com/top/"から、出馬表及びレース結果を自動取得し、フォルダ内DBに保存するアプリです。
+　WEBサイト "https://nar.netkeiba.com/top/" から、出馬表及びレース結果を自動取得し、フォルダ内DBに保存するアプリです。
 
-## 簡単な説明：
-　取得したいレースの"開催場","日付","レース番号"を指定すると、指定レース以降の出馬表情報及びレース結果を順次取得します。
-　出走馬ごとの情報がDBに格納されているので、任意の条件で並び替えが可能です。
 
-## 機能
-- レース情報を取得する。
+簡単な説明：
+　・取得したいレースの"開催場","日付","レース番号"を指定すると、指定レース以降の出馬表及びレース結果を順次取得します。
+　・出走馬ごとの情報がDBに格納されているので、任意の条件で並び替えが可能です。
 
-## 使い方
-　取得したいレースの"開催場","日付","レース番号"を指定する。過去のレースはもちろん、出走情報が発表されていれば翌日以降のレースでも取得可能です。
+機能：
+　・WEBサイト "https://nar.netkeiba.com/top/" で公開されているレース情報を取得する。
 
-## 使用例
+使い方：
+　・取得したいレースの"開催場","日付","レース番号"を指定する。
+　・過去のレースはもちろん、出馬表が発表されていれば翌日以降のレースでも取得可能です。
+
+
+使用例：
 ```
-$ git clone https://github.com/maaaaaatsuri/scraping_narShutubaTable/tree/edit001
-$ cd scraping_narShutubaTable
-python scraping_nar.py '◯◯競馬場' YYYY(ex.2021) MM(ex.11) DorDD(ex.1or10) RaceNum(ex.1)
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+　$ git clone https://github.com/maaaaaatsuri/scraping_narShutubaTable.git
+　$ pip install -r requirements.txt
+　$ cd scraping_narShutubaTable/nar_pack
+　$ python scraping_nar.py 〓'◯◯競馬場'〓 〓YYYY(ex.2021)〓 〓MM(ex.1~12)〓 〓DD(ex.1~31)〓 〓RaceNum(ex.1~12)〓
 ```
 
-## その他
-　出馬表の情報を瞬時に並び替えて、予想をもっと楽にしよう。
-
-
-
-
+その他：
+　出馬表を自分好みに整理して、予想をもっと楽にしよう。

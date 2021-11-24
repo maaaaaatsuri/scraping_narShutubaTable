@@ -1,7 +1,7 @@
 import urllib.request as req
 from bs4 import BeautifulSoup
 import re
-from utils import Utils
+from python_utils.utils import Utils
 from typing import *
 
 
