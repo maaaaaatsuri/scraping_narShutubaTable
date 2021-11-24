@@ -1,15 +1,16 @@
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-import pandas as pd
+from selenium.webdriver.chrome.options import Options
+from utils import Utils
 from venue_code_creator import VenueCodeCreator
 from reverse_number_adder import ReverseNumberAdder
 from race_number_adder import RaceNumberAdder
 from data_comparator import DataComparator
 from type_changer import TypeChanger
+import pandas as pd
 import time
 import sqlite3
 import sys
-from selenium.webdriver.chrome.options import Options
 
 
 
@@ -38,10 +39,12 @@ class RaceInfoAnalyzer():
             
         # 出馬表を取得
         self.shutuba_table = pd.DataFrame()
+        # self.browser = webdriver.Chrome(ChromeDriverManager().install())
         options = Options()
         options.add_argument('--headless')
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         time.sleep(1)
+        
         for race_id in self.race_id_lst:
             url = 'https://nar.netkeiba.com/race/shutuba.html?race_id=' + str(race_id)
             self.browser.get(url)
@@ -53,10 +56,12 @@ class RaceInfoAnalyzer():
                 for td in tds:
                     row.append(td.text)
                 self.shutuba_table = self.shutuba_table.append(pd.Series(row, name=race_id))
-        self.shutuba_table.columns = [
-            '枠','馬番','印','馬名','性齢','斤量','騎手',
-            '厩舎','馬体重(増減)','単勝オッズ','人気','',''
-            ]
+
+        columns_name_list = ['枠','馬番','印','馬名','性齢','斤量','騎手','厩舎','馬体重(増減)','単勝オッズ','人気','','']
+        combined_columns = [columns_name_list[0:len(self.shutuba_table.columns + 1)]]
+        combined_columns = list(Utils.flatten_2d(combined_columns))
+        
+        self.shutuba_table.columns = [x for x in combined_columns]
 
         # 開催日カラム追加
         self.shutuba_table['開催日'] = self.date
@@ -148,12 +153,12 @@ class RaceInfoAnalyzer():
 
         conn.commit()
         conn.close()
-
-
-
+        
+        
+          
 if __name__ == '__main__':
     args = sys.argv
-    hoge = RaceInfoAnalyzer(args[1])
-    hoge.scraping_shutuba_table(args[2], args[3], args[4], int(args[5]))
-    hoge.scraping_race_result()
-    hoge.save_db()
+    nar2111 = RaceInfoAnalyzer(args[1])
+    nar2111.scraping_shutuba_table(args[2], args[3], args[4], int(args[5]))
+    nar2111.scraping_race_result()
+    nar2111.save_db()
