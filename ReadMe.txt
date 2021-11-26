@@ -17,12 +17,14 @@
 
 
 使用例：
-```
+``````````````````````````````````````````````````````````````````````````````````````````````````````````
 　$ git clone https://github.com/maaaaaatsuri/scraping_narShutubaTable.git
-　$ pip install -r requirements.txt
-　$ cd scraping_narShutubaTable/nar_pack
-　$ python scraping_nar.py 〓'◯◯競馬場'〓 〓YYYY(ex.2021)〓 〓MM(ex.1~12)〓 〓DD(ex.1~31)〓 〓RaceNum(ex.1~12)〓
-```
+　$ cd nar_pack
+　$ pip3 install -r reqs.txt
+　$ python app_scraping_nar.py 〓'◯◯競馬場'〓 〓YYYY(ex.2021)〓 〓MM(ex.1~12)〓 〓DD(ex.1~31)〓 〓RaceNum(ex.1~12)〓
+　　⇨ (ex. $ python app_scraping_nar.py "笠松競馬場" 2021 11 25 1)
+``````````````````````````````````````````````````````````````````````````````````````````````````````````
 
 その他：
 　出馬表を自分好みに整理して、予想をもっと楽にしよう。
+
