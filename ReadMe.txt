@@ -19,10 +19,10 @@
 使用例：
 ``````````````````````````````````````````````````````````````````````````````````````````````````````````
 　$ git clone https://github.com/maaaaaatsuri/scraping_narShutubaTable.git
-　$ cd nar_pack
+　$ cd scraping_narShutubaTable/nar_pack
 　$ pip3 install -r reqs.txt
-　$ python app_scraping_nar.py 〓'◯◯競馬場'〓 〓YYYY(ex.2021)〓 〓MM(ex.1~12)〓 〓DD(ex.1~31)〓 〓RaceNum(ex.1~12)〓
-　　⇨ (ex. $ python app_scraping_nar.py "笠松競馬場" 2021 11 25 1)
+　$ python3 app_scraping_nar.py 〓'◯◯競馬場'〓 〓YYYY(ex.2021)〓 〓MM(ex.1~12)〓 〓DD(ex.1~31)〓 〓RaceNum(ex.1~12)〓
+　　⇨ (ex. $ python3 app_scraping_nar.py "笠松競馬場" 2021 11 25 1)
 ``````````````````````````````````````````````````````````````````````````````````````````````````````````
 
 その他：
