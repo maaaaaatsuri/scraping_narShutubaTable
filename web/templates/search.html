@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+<head>
+{% block title %}条件検索{% endblock %}
+</head>
+
+<body>
+{% block header %}<h1>条件検索ページ</h1>{% endblock header %}
+{% block contents %}
+<br>
+<h3><a href='{% url "home" %}'>🏇うまコピ</a></h3>
+<br>
+
+<h3>開催情報を指定してください。</h3>
+<br>
+
+<h5>◆開催日から探す</h5>
+  {% for date, join_date in datedict.items %}
+    <a href='{% url "join_date" join_date %}'>{{ date }}</a><br>
+  {% endfor %}
+<br>
+<h5>◆開催場所から探す</h5>
+  {% for v in held_venues %}
+    <a href='{% url "join_date" v.開催場所 %}'>{{ v.開催場所 }}</a><br>
+  {% endfor %}
+
+<br>
+
+
+{% endblock %}
+</body>
+</html>

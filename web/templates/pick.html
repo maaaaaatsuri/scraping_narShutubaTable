@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+<head>
+{% block title %}対象{% endblock %}
+</head>
+
+<body>
+{% block header %}<h1>出馬表一覧</h1>{% endblock header %}
+
+{% block contents %}
+
+<br>
+<h3><a href='{% url "home" %}'>{{ '🏇うまコピホームへ' }}</a></h3><br>
+
+<form action="" method="get">
+    <label for="">馬名で検索(馬名に一部を含む)>></label>
+    <input type="text" size="22" name="query_a" placeholder="指定されていません" autocomplete="off">
+    
+    <label for="">騎手で検索>></label>
+    <input type="search" size="22" name="query_b" placeholder="指定されていません" autocomplete="off" list="jockey">
+        <datalist id="jockey">
+            {% for jockey in jockeys %}
+                <option value="{{ jockey.騎手 }}">
+            {% endfor %}
+        </datalist>
+        
+    <label for="">厩舎で検索>></label><input type="search" size="22" name="query_c" placeholder="指定されていません" autocomplete="off" list="stable"><br>
+        <datalist id="stable">
+            {% for stable in stables %}
+                <option value="{{ stable.厩舎 }}">
+            {% endfor %}
+        </datalist>
+        
+    <button type="submit">検索する</button>
+</form><br>
+
+
+<table border="1">
+   <tr>
+       <th>開催日</th>
+       <th>開催場所</th>
+       <th>レース</th>
+       <th>着順</th>
+       <th>枠</th>
+       <th>馬番</th>
+       <th>逆番</th>
+       <th>印</th>
+       <th>馬名</th>
+       <th>騎手</th>
+       <th>厩舎</th>
+       <th>単勝オッズ</th>
+       <th>人気</th>
+   </tr>
+   {% for o in pickdata %}
+   <tr>
+       <td>{{ o.開催日 }}</td>
+       <td>{{ o.開催場所 }}</td>
+       <td>{{ o.レース }}</td>
+       <td>{{ o.着順 }}</td>
+       <td>{{ o.枠 }}</td>
+       <td>{{ o.馬番 }}</td>
+       <td>{{ o.逆番 }}</td>
+       <td>{{ o.印 }}</td>
+       <td>{{ o.馬名 }}</td>
+       <td>{{ o.騎手 }}</td>
+       <td>{{ o.厩舎 }}</td>
+       <td>{{ o.単勝オッズ }}</td>
+       <td>{{ o.人気 }}</td>
+   </tr>
+   {% endfor %}
+</table><br><br>
+
+
+
+{% endblock contents %}
+</body>
+</html>

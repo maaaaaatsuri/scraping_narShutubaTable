@@ -1,0 +1,29 @@
+"""
+urls.pyは、表示するurlの指示を受けた時に（httprequestを受けたときに）、
+djangoが次にどのファイルを参照するのかを決める時に使います。
+"""
+
+"""config URL Configuration
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/3.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
+# from .views import HelloWorldView
+
+# url関数(第1引数:urlの正規表現，第2引数:view関数 or include関数の戻り値)
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('umacopi/', include('umacopi.urls')),
+]
