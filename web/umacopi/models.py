@@ -3,29 +3,30 @@ from django.db import models
 # Create your models here.
 
 class NarModel(models.Model):
-    開催日 = models.CharField(max_length=12)
-    開催場所 = models.CharField(max_length=10)
-    レース = models.CharField(max_length=4)
-    着順 = models.PositiveSmallIntegerField(null=True, blank=True)
-    枠 = models.PositiveSmallIntegerField(null=True, blank=True)
-    馬番 = models.PositiveSmallIntegerField(null=True, blank=True)
-    逆番 = models.PositiveSmallIntegerField(null=True, blank=True)
-    印 = models.CharField(max_length=6)
-    馬名 = models.CharField(max_length=10)
-    騎手 = models.CharField(max_length=10)
-    厩舎 = models.CharField(max_length=10)
-    単勝オッズ = models.FloatField(null=True, blank=True)
-    人気 = models.PositiveSmallIntegerField(null=True, blank=True)
+    held_date = models.CharField(verbose_name='開催日', max_length=12)
+    venue = models.CharField(verbose_name='開催場所', max_length=10)
+    race_number = models.CharField(verbose_name='レース', max_length=4)
+    rank = models.PositiveSmallIntegerField(verbose_name='着順', null=True, blank=True)
+    frame = models.PositiveSmallIntegerField(verbose_name='枠', null=True, blank=True)
+    umaban = models.PositiveSmallIntegerField(verbose_name='馬番', null=True, blank=True)
+    rev_umaban = models.PositiveSmallIntegerField(verbose_name='逆番', null=True, blank=True)
+    mark = models.CharField(verbose_name='印', max_length=6)
+    horse_name = models.CharField(verbose_name='馬名', max_length=10)
+    jockey = models.CharField(verbose_name='騎手', max_length=10)
+    stable = models.CharField(verbose_name='厩舎', max_length=10)
+    odds = models.FloatField(verbose_name='単勝オッズ', null=True, blank=True)
+    popularity = models.PositiveSmallIntegerField(verbose_name='人気', null=True, blank=True)
 
     def __str__(self):
-        return self.開催日
+        return self.held_date
+
 
 
 """
 class NarModel(models.Model):
-    date = models.CharField(max_length=12)
+    held_date = models.CharField(max_length=12)
     venue = models.CharField(max_length=10)
-    race_num = models.CharField(max_length=4)
+    race_number = models.CharField(max_length=4)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
     frame = models.PositiveSmallIntegerField(null=True, blank=True)
     umaban = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -37,10 +38,6 @@ class NarModel(models.Model):
     odds = models.FloatField(null=True, blank=True)
     popularity = models.PositiveSmallIntegerField(null=True, blank=True)
 """
-
-
-
-
 
 
 
@@ -65,12 +62,11 @@ class MstMark(models.Model): # 印テーブル
 
 class HeldInfo(models.Model): # 開催情報テーブル(開催情報(「いつ行われる、どの競馬場の全レース」が対象であるか)を特定)
     # held_id = models.PositiveIntegerField(primary_key=True) # 開催情報管理番号(1~∞)
-    
+
     date = models.CharField(max_length=12) # 開催日
     venue_id = models.ForeignKey(Venue) # 競馬場ID
 
-
-class RaceTable(models.Model): # 出馬表テーブル(出馬表を特定)
+    class RaceTable(models.Model): # 出馬表テーブル(出馬表を特定)
     # race_table_id = PositiveIntegerField(primary_key=True) # 出馬表管理番号(1~∞)
 
     # held_id = models.ForeignKey(Venue) # 開催情報管理番号(1~∞)
@@ -84,7 +80,7 @@ class RaceResults(models.Model): # 出走情報テーブル(出走情報を特�
     rank = models.PositiveSmallIntegerField(null=True, blank=True) # 着順(1~max18)
     frame = models.PositiveSmallIntegerField(null=True, blank=True) # 枠(1~max8)
     umaban = models.PositiveSmallIntegerField(null=True, blank=True) # 馬番(1~max18)
-    rev_umaban = models.PositiveSmallIntegerField(null=True, blank=True) # 逆番(1~max18)    
+    rev_umaban = models.PositiveSmallIntegerField(null=True, blank=True) # 逆番(1~max18)
     horse_name = models.CharField(max_length=10) # 馬名
     jockey_id = models.ForeignKey(Jockey) # 騎手ID
     stable_id = models.ForeignKey(Stable) # 厩舎ID

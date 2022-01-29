@@ -22,7 +22,7 @@ from django.contrib import admin
 from django.urls import path, include
 # from .views import HelloWorldView
 
-# url関数(第1引数:urlの正規表現，第2引数:view関数 or include関数の戻り値)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('umacopi/', include('umacopi.urls')),

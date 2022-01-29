@@ -23,14 +23,14 @@
     <input type="search" size="22" name="query_b" placeholder="指定されていません" autocomplete="off" list="jockey">
         <datalist id="jockey">
             {% for jockey in jockeys %}
-                <option value="{{ jockey.騎手 }}">
+                <option value="{{ jockey.jockey }}">
             {% endfor %}
         </datalist>
         
     <label for="">厩舎で検索>></label><input type="search" size="22" name="query_c" placeholder="指定されていません" autocomplete="off" list="stable"><br>
         <datalist id="stable">
             {% for stable in stables %}
-                <option value="{{ stable.厩舎 }}">
+                <option value="{{ stable.stable }}">
             {% endfor %}
         </datalist>
         
@@ -56,19 +56,19 @@
    </tr>
    {% for o in pickdata %}
    <tr>
-       <td>{{ o.開催日 }}</td>
-       <td>{{ o.開催場所 }}</td>
-       <td>{{ o.レース }}</td>
-       <td>{{ o.着順 }}</td>
-       <td>{{ o.枠 }}</td>
-       <td>{{ o.馬番 }}</td>
-       <td>{{ o.逆番 }}</td>
-       <td>{{ o.印 }}</td>
-       <td>{{ o.馬名 }}</td>
-       <td>{{ o.騎手 }}</td>
-       <td>{{ o.厩舎 }}</td>
-       <td>{{ o.単勝オッズ }}</td>
-       <td>{{ o.人気 }}</td>
+       <td>{{ o.held_date }}</td>
+       <td>{{ o.venue }}</td>
+       <td>{{ o.race_number }}</td>
+       <td>{{ o.rank }}</td>
+       <td>{{ o.frame }}</td>
+       <td>{{ o.umaban }}</td>
+       <td>{{ o.rev_umaban }}</td>
+       <td>{{ o.mark }}</td>
+       <td>{{ o.horse_name }}</td>
+       <td>{{ o.jockey }}</td>
+       <td>{{ o.stable }}</td>
+       <td>{{ o.odds }}</td>
+       <td>{{ o.popularity }}</td>
    </tr>
    {% endfor %}
 </table><br><br>

@@ -19,13 +19,13 @@
 <br>
 <form action="" method="get">
   <label for="">開催場所を選択してください>></label>
-  <input type="search" size="22" name="selected_venue" placeholder="指定されていません" autocomplete="off" list="venue">
-      <datalist id="venue">
-          {% for v in venues %}
-              <option value="{{ v.venue }}">
+  <input type="search" size="22" name="selected_date" placeholder="指定されていません" autocomplete="off" list="date">
+      <datalist id="date">
+          {% for d in date %}
+              <option value="{{ d.held_date }}">
           {% endfor %}
       </datalist>
-  <button type="submit">検索する</button>
+    <a href='{% url "s" %}'><button type="submit">検索する</button></a>
 </form><br>
 
 <table border="1">
@@ -44,7 +44,7 @@
     <th>単勝オッズ</th>
     <th>人気</th>
   </tr>
-  {% for o in dateselected %}
+  {% for o in b %}
   <tr>
     <td>{{ o.held_date }}</td>
     <td>{{ o.venue }}</td>

@@ -9,7 +9,7 @@ import datetime
 
 class HomeView(ListView):
     model = NarModel
-    queryset = NarModel.objects.values('開催日','開催場所').distinct()
+    queryset = NarModel.objects.values('held_date','venue').distinct()
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
@@ -28,12 +28,33 @@ class HomeView(ListView):
         ctx['yesterday_con'] = dt_yesterday.strftime('%Y%m%d')
         ctx['tomorrow_con'] = dt_tomorrow.strftime('%Y%m%d')
 
-        ctx['todayraces'] = NarModel.objects.filter(開催日=today).values('開催日','開催場所').distinct()
-        ctx['yesterdayraces'] = NarModel.objects.filter(開催日=yesterday).values('開催日','開催場所').distinct()
-        ctx['tomorrowraces'] = NarModel.objects.filter(開催日=tomorrow).values('開催日','開催場所').distinct()
+        ctx['todayraces'] = NarModel.objects.all()
+        ctx['todayraces'] = NarModel.objects.filter(held_date=today).values('held_date','venue').distinct()
+        ctx['yesterdayraces'] = NarModel.objects.filter(held_date=yesterday).values('held_date','venue').distinct()
+        ctx['tomorrowraces'] = NarModel.objects.filter(held_date=tomorrow).values('held_date','venue').distinct()
         
-        ctx['thedates'] = NarModel.objects.values('開催日').distinct()
-        ctx['thevenues'] = NarModel.objects.values('開催場所').distinct()
+        held_dates = NarModel.objects.values('held_date').distinct().order_by('held_date')
+        date_list = [] # 2022##/##形式のリスト
+        join_date_list = [] # 2022####形式のリスト
+        for held_date in held_dates:
+            for date in held_date.values():
+                date_list.append(date)
+                date = datetime.datetime.strptime(date, '%Y/%m/%d')
+                join_date = date.strftime('%Y%m%d')
+                join_date_list.append(join_date)
+        datedict = {k: v for k, v in zip(date_list, join_date_list)}
+        ctx['datedict'] = datedict
+        ctx['venues'] = NarModel.objects.values('venue').distinct()
+        
+        query_date = self.request.GET.get('query_date', default="")
+        if query_date:
+            date = datetime.datetime.strptime(query_date, '%Y%m%d')
+            date = date.strftime('%Y/%m/%d')
+            filtering_venues = NarModel.objects.filter(held_date=date).values('held_date', 'venue').distinct()
+            ctx['filtering_venues'] = filtering_venues
+        else:
+            pass
+        
         return ctx
 
 
@@ -42,7 +63,7 @@ class PickView(ListView):
     template_name = 'pick.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
         dt_today = datetime.datetime.now()
         dt_yesterday = dt_today - datetime.timedelta(days=1)
         dt_tomorrow = dt_today - datetime.timedelta(days=-1)
@@ -67,59 +88,58 @@ class PickView(ListView):
         query_c = self.request.GET.get('query_c', default="")
 
         if today_con == tod:
-            horsenames = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values('馬名')
-            jockeys = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values('騎手').distinct()
-            stables = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values('厩舎').distinct()
+            horsenames = NarModel.objects.filter(held_date=today, venue=today_venue).values('horse_name')
+            jockeys = NarModel.objects.filter(held_date=today, venue=today_venue).values('jockey').distinct()
+            stables = NarModel.objects.filter(held_date=today, venue=today_venue).values('stable').distinct()
             if query_a:
-                pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values().filter(Q(馬名__icontains=query_a))
+                pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(horse_name__icontains=query_a))
             elif query_b:
-                pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values().filter(Q(騎手__iexact=query_b)).distinct()
+                pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(jockey__iexact=query_b)).distinct()
             elif query_c:
-                pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values().filter(Q(厩舎__iexact=query_c)).distinct()
+                pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(stable__iexact=query_c)).distinct()
             else:
-                pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values()
+                pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values()
         elif yesterday_con == ye:
-            horsenames = NarModel.objects.filter(開催日=yesterday, 開催場所=yesterday_venue).values('馬名')
-            jockeys = NarModel.objects.filter(開催日=yesterday, 開催場所=yesterday_venue).values('騎手').distinct()
-            stables = NarModel.objects.filter(開催日=yesterday, 開催場所=yesterday_venue).values('厩舎').distinct()
+            horsenames = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values('horse_name')
+            jockeys = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values('jockey').distinct()
+            stables = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values('stable').distinct()
             if query_a:
-                pickdata = NarModel.objects.filter(開催日=yesterday, 開催場所=yesterday_venue).values().filter(Q(馬名__icontains=query_a)).distinct()
+                pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values().filter(Q(horse_name__icontains=query_a)).distinct()
             elif query_b:
-                pickdata = NarModel.objects.filter(開催日=yesterday, 開催場所=yesterday_venue).values().filter(Q(騎手__iexact=query_b)).distinct()
+                pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values().filter(Q(jockey__iexact=query_b)).distinct()
             elif query_c:
-                pickdata = NarModel.objects.filter(開催日=yesterday, 開催場所=yesterday_venue).values().filter(Q(厩舎__iexact=query_c)).distinct()
+                pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values().filter(Q(stable__iexact=query_c)).distinct()
             else:
-                pickdata = NarModel.objects.filter(開催日=yesterday, 開催場所=yesterday_venue).values()
+                pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values()
         elif tomorrow_con == tom:
-            horsenames = NarModel.objects.filter(開催日=tomorrow, 開催場所=tomorrow_venue).values('馬名')
-            jockeys = NarModel.objects.filter(開催日=tomorrow, 開催場所=tomorrow_venue).values('騎手').distinct()
-            stables = NarModel.objects.filter(開催日=tomorrow, 開催場所=tomorrow_venue).values('厩舎').distinct()
+            horsenames = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values('horse_name')
+            jockeys = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values('jockey').distinct()
+            stables = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values('stable').distinct()
             if query_a:
-                pickdata = NarModel.objects.filter(開催日=tomorrow, 開催場所=tomorrow_venue).values().filter(Q(馬名__icontains=query_a)).distinct()
+                pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values().filter(Q(horse_name__icontains=query_a)).distinct()
             elif query_b:
-                pickdata = NarModel.objects.filter(開催日=tomorrow, 開催場所=tomorrow_venue).values().filter(Q(騎手__iexact=query_b)).distinct()
+                pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values().filter(Q(jockey__iexact=query_b)).distinct()
             elif query_c:
-                pickdata = NarModel.objects.filter(開催日=tomorrow, 開催場所=tomorrow_venue).values().filter(Q(厩舎__iexact=query_c)).distinct()
+                pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values().filter(Q(stable__iexact=query_c)).distinct()
             else:
-                pickdata = NarModel.objects.filter(開催日=tomorrow, 開催場所=tomorrow_venue).values()
+                pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values()
         else:
             pickdata = NarModel.objects.all()
-        context['horsenames'] = horsenames
-        context['jockeys'] = jockeys
-        context['stables'] = stables
-        context['pickdata'] = pickdata
-        return context
+        ctx['horsenames'] = horsenames
+        ctx['jockeys'] = jockeys
+        ctx['stables'] = stables
+        ctx['pickdata'] = pickdata
+        return ctx
 
 
 class DateSearchView(ListView):
     model = NarModel
-    template_name = 'search.html'
+    template_name = 'date.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        held_dates = NarModel.objects.values('開催日').distinct()
-        held_venues = NarModel.objects.values('開催場所').distinct()
+        ctx = super().get_context_data(**kwargs)
 
+        held_dates = NarModel.objects.values('held_date').distinct().order_by('held_date')
         date_list = [] # 2022##/##形式のリスト
         join_date_list = [] # 2022####形式のリスト
         for held_date in held_dates:
@@ -129,45 +149,83 @@ class DateSearchView(ListView):
                 join_date = date.strftime('%Y%m%d')
                 join_date_list.append(join_date)
         datedict = {k: v for k, v in zip(date_list, join_date_list)}
-        context['datedict'] = datedict
-        context['held_venues'] = held_venues
-        return context
+        ctx['datedict'] = datedict
 
-
-class DateSelectedView(ListView):
-    model = NarModel
-    template_name = 'subsearch.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        join_date = self.kwargs.get('join_date')
-        date = datetime.datetime.strptime(join_date, '%Y%m%d')
-        date = date.strftime('%Y/%m/%d')
-
-        venues = NarModel.objects.filter(開催日=date).values('開催場所').distinct()
-        context['venues'] = venues
-        
-        a = NarModel.objects.all()
-        selected_venue = self.request.GET.get('selected_venue', default="")
-        if selected_venue:
-            a = NarModel.objects.filter(開催日=date, 開催場所=selected_venue).values()
+        dateselected = NarModel.objects.none()
+        filtering_venues = NarModel.objects.none()
+        query_date = self.request.GET.get('query_date', default="")
+        if query_date:
+            date = datetime.datetime.strptime(query_date, '%Y%m%d')
+            date = date.strftime('%Y/%m/%d')
+            filtering_venues = NarModel.objects.filter(held_date=date).values('venue').distinct()
+            dateselected = NarModel.objects.filter(held_date=date).values()
         else:
-            print("elseのpass")
-            a = NarModel.objects.filter(開催日=date).values()
+            pass
+        
+        query_venue = self.request.GET.get('query_venue', default="")
+        if query_venue:
+            dateselected = NarModel.objects.filter(held_date=date, venue=query_venue).values()
+        else:
             pass
 
-        context['a'] = a
-        return context
+        ctx['filtering_venues'] = filtering_venues
+        ctx['dateselected'] = dateselected
+        return ctx
 
 
+class VenueSelectedView(ListView):
+    model = NarModel
+    template_name = 'a.html'
+
+    # def get_context_data(self, **kwargs):
+    #     ctx = super().get_context_data(**kwargs)
+
+    #     selected_venue = self.kwargs.get('selected_venue')
+    #     date = NarModel.objects.filter(venue=selected_venue).values('held_date').distinct()
+
+    #     join_date = self.request.GET.get('join_date', default="")
+    #     a = datetime.datetime.strptime(join_date, '%Y%m%d')
+    #     a = a.strftime('%Y/%m/%d')
+    #     b = NarModel.objects.none()
+
+    #     if join_date:
+    #         b = NarModel.objects.filter(held_date=a, venue=selected_venue).values()
+    #     else:
+    #         pass
+
+    #     ctx['date'] = date
+    #     ctx['b'] = b
+    #     return ctx
 
 
+class aView(ListView):
+    model = NarModel
+    template_name = 'datesearch.html'
+
+#     def get_context_data(self, **kwargs):
+#         ctx = super().get_context_data(**kwargs)
+#         held_dates = NarModel.objects.values('held_date').distinct().order_by('held_date')
+#         held_venues = NarModel.objects.values('venue').distinct()
+
+#         date_list = [] # 2022##/##形式のリスト
+#         join_date_list = [] # 2022####形式のリスト
+#         for held_date in held_dates:
+#             for date in held_date.values():
+#                 date_list.append(date)
+#                 date = datetime.datetime.strptime(date, '%Y/%m/%d')
+#                 join_date = date.strftime('%Y%m%d')
+#                 join_date_list.append(join_date)
+#         datedict = {k: v for k, v in zip(date_list, join_date_list)}
+#         ctx['datedict'] = datedict
+#         ctx['held_venues'] = held_venues
+#         return ctx
 
 
-
-
-
+# <h5>◆開催場所から探す</h5>
+# <label for="select_venue">開催日を選択してください:</label><br>
+#   {% for v in venues %}
+#     <a href='{% url "v_search" %}'>{{ v.venue }}</a>
+#   {% endfor %}
 
 
 
@@ -183,7 +241,7 @@ class DateSelectedView(ListView):
 #     print("sample")
 #     date = datetime.datetime.strptime(join_date, '%Y%m%d')
 #     date = date.strftime('%Y/%m/%d')
-#     venues = NarModel.objects.filter(開催日=date).values('開催場所').distinct()
+#     venues = NarModel.objects.filter(held_date=date).values('venue').distinct()
 #     venues = { 'venues': venues }
 #     return render(request, 'therace.html', venues)
 
@@ -193,7 +251,7 @@ class DateSelectedView(ListView):
         # if join_date:
         #     date = datetime.datetime.strptime(join_date, '%Y%m%d')
         #     date = date.strftime('%Y/%m/%d')
-        #     venues = NarModel.objects.filter(開催日=date).values('開催場所').distinct()
+        #     venues = NarModel.objects.filter(held_date=date).values('venue').distinct()
         # else:
         #     print("else")
         #     pass
@@ -206,12 +264,12 @@ class VenueSearchView(ListView):
     model = NarModel
     template_name = 'search.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    # def get_context_data(self, **kwargs):
+    #     ctx = super().get_context_data(**kwargs)
 
-        pickdatav = NarModel.objects.values('開催場所').distinct()
-        context['pickdatav'] = pickdatav
-        return context
+    #     pickdatav = NarModel.objects.values('venue').distinct()
+    #     ctx['pickdatav'] = pickdatav
+    #     return ctx
 
 
 
@@ -222,20 +280,20 @@ class VenueSearchView(ListView):
         # print(join_date)
 
         # if join_date:
-        #     date_search_venue = NarModel.objects.filter(開催日=join_date).values('開催場所')
+        #     date_search_venue = NarModel.objects.filter(held_date=join_date).values('venue')
         # #     if query_a:
-        # #         pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values().filter(Q(馬名__icontains=query_a))
+        # #         pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(horse_name__icontains=query_a))
         # #     elif query_b:
-        # #         pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values().filter(Q(騎手__iexact=query_b)).distinct()
+        # #         pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(jockey__iexact=query_b)).distinct()
         # #     elif query_c:
-        # #         pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values().filter(Q(厩舎__iexact=query_c)).distinct()
+        # #         pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(stable__iexact=query_c)).distinct()
         # #     else:
-        # #         pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values()
+        # #         pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values()
         # # elif yesterday_con == ye:
         # else:
         #     pass
 
-        # # context['datesearchvenue'] = date_search_venue
+        # # ctx['datesearchvenue'] = date_search_venue
 
 
 
@@ -257,69 +315,56 @@ class VenueSearchView(ListView):
 
 
 
-    # def dispatch(self, request, *args, **kwargs,):
-    #     print('DISPATCH')
-    #     return super().dispatch(request, *args, **kwargs)
+# def dispatch(self, request, *args, **kwargs,):
+#     print('DISPATCH')
+#     return super().dispatch(request, *args, **kwargs)
 
-    # def get(self, request, *args, **kwargs):
-    #     print('GET')
-    #     return super().get(request, *args, **kwargs)
+# def get(self, request, *args, **kwargs):
+#     print('GET')
+#     return super().get(request, *args, **kwargs)
 
-    # def post(self, request, *args, **kwargs):
-    #     print('POST')
-    #     return HttpResponse(200)
-
-
-
-def today_pick(request, today_con, today_venue):
-    dt_today = datetime.datetime.now()
-    today = dt_today.strftime('%Y/%m/%d')
-    pickdata = NarModel.objects.filter(開催日=today, 開催場所=today_venue).values()
-    ctx = { 'pickdata': pickdata,
-            'today': today,
-            'today_con': today_con}
-    return render(request, 'pick.html', ctx)
-
-def yesterday_pick(request, yesterday_con, yesterday_venue):
-    dt_today = datetime.datetime.now()
-    dt_yesterday = dt_today - datetime.timedelta(days=1)
-    yesterday = dt_yesterday.strftime('%Y/%m/%d')
-    pickdata = NarModel.objects.filter(開催日=yesterday, 開催場所=yesterday_venue).values()
-    ctx = { 'pickdata': pickdata,
-            'yesterday': yesterday,
-            'yesterday_con': yesterday_con}
-    return render(request, 'pick.html', ctx)
-
-def tomorrow_pick(request, tomorrow_con, tomorrow_venue):
-    dt_today = datetime.datetime.now()
-    dt_tomorrow = dt_today - datetime.timedelta(days=-1)
-    tomorrow = dt_tomorrow.strftime('%Y/%m/%d')
-    pickdata = NarModel.objects.filter(開催日=tomorrow, 開催場所=tomorrow_venue).values()
-    ctx = { 'pickdata': pickdata,
-            'tomorrow': tomorrow,
-            'tomorrow_con': tomorrow_con}
-    return render(request, 'pick.html', ctx)
+# def post(self, request, *args, **kwargs):
+#     print('POST')
+#     return HttpResponse(200)
 
 
 
+# def today_pick(request, today_con, today_venue):
+#     dt_today = datetime.datetime.now()
+#     today = dt_today.strftime('%Y/%m/%d')
+#     pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values()
+#     ctx = { 'pickdata': pickdata,
+#             'today': today,
+#             'today_con': today_con}
+#     return render(request, 'pick.html', ctx)
+
+# def yesterday_pick(request, yesterday_con, yesterday_venue):
+#     dt_today = datetime.datetime.now()
+#     dt_yesterday = dt_today - datetime.timedelta(days=1)
+#     yesterday = dt_yesterday.strftime('%Y/%m/%d')
+#     pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values()
+#     ctx = { 'pickdata': pickdata,
+#             'yesterday': yesterday,
+#             'yesterday_con': yesterday_con}
+#     return render(request, 'pick.html', ctx)
+
+# def tomorrow_pick(request, tomorrow_con, tomorrow_venue):
+#     dt_today = datetime.datetime.now()
+#     dt_tomorrow = dt_today - datetime.timedelta(days=-1)
+#     tomorrow = dt_tomorrow.strftime('%Y/%m/%d')
+#     pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values()
+#     ctx = { 'pickdata': pickdata,
+#             'tomorrow': tomorrow,
+#             'tomorrow_con': tomorrow_con}
+#     return render(request, 'pick.html', ctx)
 
 
-    # def sample(request):
-    #     helddata = NarModel.objects.values('開催日', '開催場所').distinct()
-    #     helddata = {
-    #         'helddata': helddata,
-    #     }
-    #     return render(request, 'home.html', helddata)
 
-class SortView(ListView):
-    model = NarModel
-    template_name = 'sort.html'
-    
 # class DeleteView(DeleteView):
 #     model = NarModel
 #     template_name = 'delete.html'
 #     success_url = reverse_lazy('pick')
 
-        # ctx['today_venue'] = NarModel.objects.filter(開催日=today).values('開催場所').distinct()
-        # ctx['yesterday_venue'] = NarModel.objects.filter(開催日=yesterday).values('開催場所').distinct()
-        # ctx['tomorrow_venue'] = NarModel.objects.filter(開催日=tomorrow).values('開催場所').distinct()
+        # ctx['today_venue'] = NarModel.objects.filter(held_date=today).values('venue').distinct()
+        # ctx['yesterday_venue'] = NarModel.objects.filter(held_date=yesterday).values('venue').distinct()
+        # ctx['tomorrow_venue'] = NarModel.objects.filter(held_date=tomorrow).values('venue').distinct()

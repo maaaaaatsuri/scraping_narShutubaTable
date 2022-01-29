@@ -15,13 +15,30 @@
 <br>
 
 
-<h3>開催場所を選択</h3>
+<form action="" method="get">
+  <label for="select_date">開催日を選択してください</label>
+  <input type="search" size="22" name="query_date" placeholder="指定されていません" autocomplete="off" list="select_date">
+      <datalist id="select_date">
+          {% for date, join_date in datedict.items %}
+              <option value="{{ join_date }}">{{ date }}</option>
+          {% endfor %}
+      </datalist>
+  <button type="submit">検索する</button>
+</form>
+
+{% for v in filtering_venues %}
+  <a href='{% url "d_search" %}'>
+    {{ v.held_date }} &thinsp; {{ v.venue }}
+  </a><br>
+{% endfor %}
+
 <br>
+
 <form action="" method="get">
   <label for="">開催場所を選択してください>></label>
-  <input type="search" size="22" name="selected_venue" placeholder="指定されていません" autocomplete="off" list="venue">
-      <datalist id="venue">
-          {% for v in venues %}
+  <input type="search" size="22" name="query_venue" placeholder="指定されていません" autocomplete="off" list="select_venue">
+      <datalist id="select_venue">
+          {% for v in filtering_venues %}
               <option value="{{ v.venue }}">
           {% endfor %}
       </datalist>
@@ -63,7 +80,7 @@
   {% endfor %}
 </table><br><br>
 
-
+<br>
 
 {% endblock %}
 </body>
