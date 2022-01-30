@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
-from .views import HomeView, PickView, DateSearchView, VenueSearchView
-from .views import aView, VenueSelectedView, DeleteView
+# from .views import HomeView, PickView, DateSearchView, VenueSearchView
+# from .views import aView, VenueSelectedView, DeleteView
 
 """
 path(第1引数:webブラウザから呼出すURLの名称, 第2引数:呼び出される関数, 第3引数:htmlファイルからの呼び出しに使う)
@@ -9,14 +9,14 @@ path(第1引数:webブラウザから呼出すURLの名称, 第2引数:呼び出
 """
 
 urlpatterns = [
-    path('home/', HomeView.as_view(), name='home'),
-    path('today_pick/<str:today_con>/<str:today_venue>', PickView.as_view(), name='today_pick'),
-    path('yesterday_pick/<str:yesterday_con>/<str:yesterday_venue>', PickView.as_view(), name='yesterday_pick'),
-    path('tomorrow_pick/<str:tomorrow_con>/<str:tomorrow_venue>', PickView.as_view(), name='tomorrow_pick'),
+    # path('home/', HomeView.as_view(), name='home'),
+    # path('today_pick/<str:today_con>/<str:today_venue>', PickView.as_view(), name='today_pick'),
+    # path('yesterday_pick/<str:yesterday_con>/<str:yesterday_venue>', PickView.as_view(), name='yesterday_pick'),
+    # path('tomorrow_pick/<str:tomorrow_con>/<str:tomorrow_venue>', PickView.as_view(), name='tomorrow_pick'),
 
-    path('home/d_search/', DateSearchView.as_view(), name='d_search'),
+    # path('home/d_search/', DateSearchView.as_view(), name='d_search'),
 
-    path('home/v_search', DateSearchView.as_view(), name='v_search'),
+    # path('home/v_search', DateSearchView.as_view(), name='v_search'),
 
 
 
