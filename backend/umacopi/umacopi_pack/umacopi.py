@@ -180,13 +180,14 @@ class DbManager(RaceInfoAnalyzer):
     def __init__(self, dbname, venue, year, month, day, race_num):
         self.dbname = dbname
         date_creator = DateCreator()
-        date = date_creator.create_date(year, month, day)
+        self.date = date_creator.create_date(year, month, day)
         ins = RaceInfoAnalyzer(venue)
         self.shutuba_table = ins.scraping_shutuba_table(year, month, day, race_num)
         self.shutuba_table = ins.scraping_race_result()
 
         conn = sqlite3.connect(self.dbname)
         cur = conn.cursor()
+
         # 開催場所、指定時の一回だけDB問い合わせ、データがなければINSERT実行
         sql_select_v = 'SELECT name FROM umacopi_mstvenue WHERE name = ?'
         v = cur.execute(sql_select_v, (venue,)) # 第二引数は要素一つでもタプルで記述(,)が必要
@@ -198,17 +199,17 @@ class DbManager(RaceInfoAnalyzer):
             pass
 
         # レース情報、指定時の一回だけDB問い合わせ、データがなければINSERT実行
-        print(date)
+        print(self.date)
         select_raceinfo = 'SELECT date, venue_id FROM umacopi_raceinfo WHERE date = ? AND venue_id = ?'
-        venue_id = cur.execute('SELECT id FROM umacopi_mstvenue WHERE name = ?', (venue,))
-        venue_id = venue_id.fetchone()
-        venue_id = venue_id[0]
-        raceinfo = cur.execute(select_raceinfo, (date, venue_id))
+        self.venue_id = cur.execute('SELECT id FROM umacopi_mstvenue WHERE name = ?', (venue,))
+        self.venue_id = self.venue_id.fetchone()
+        self.venue_id = self.venue_id[0]
+        raceinfo = cur.execute(select_raceinfo, (self.date, self.venue_id))
         raceinfo = raceinfo.fetchone()
         if raceinfo == None:
             print('raceinfoインサートします')
             sql_insert = 'INSERT INTO umacopi_raceinfo ([date], [venue_id]) VALUES(?, ?)'
-            cur.execute(sql_insert, (day, venue_id))
+            cur.execute(sql_insert, (self.date, self.venue_id))
         else:
             print('raceinfoインサートはありません')
             pass
@@ -239,9 +240,9 @@ class DbManager(RaceInfoAnalyzer):
             s = cur.execute(sql_select_s, (new_row[11],)) # 第二引数は要素一つでもタプルで記述(,)が必要
             s = s.fetchone()
 
-            print("jを表示", j, type(j))
-            print("mを表示", m, type(m))
-            print("sを表示", s, type(s))
+            # print("jを表示", j, type(j))
+            # print("mを表示", m, type(m))
+            # print("sを表示", s, type(s))
 
             if j == None:
                 print('jインサートします')
@@ -268,33 +269,75 @@ class DbManager(RaceInfoAnalyzer):
                 pass
             print('\n')
 
-        j = cur.execute('SELECT * FROM umacopi_mstjockey')
-        j = j.fetchall()
-        m = cur.execute('SELECT * FROM umacopi_mstmark')
-        m = m.fetchall()
-        s = cur.execute('SELECT * FROM umacopi_mststable')
-        s = s.fetchall()
 
-        raceinfo = cur.execute('SELECT * FROM umacopi_raceinfo')
-        raceinfo = raceinfo.fetchall()
-        print(raceinfo)
+# =============================       umacopi_racetable
+            raceinfo = cur.execute('SELECT * FROM umacopi_raceinfo')
+            raceinfo = raceinfo.fetchall()
+            # print(raceinfo)
 
-        print('\n', '作業用', new_row, '\n')
+            # print(self.date)
+            # print(self.venue_id)
+            select_racetable = 'SELECT race_num, raceinfo_id FROM umacopi_racetable WHERE race_num = ? AND raceinfo_id = ?'
+            raceinfo_id = cur.execute('SELECT id FROM umacopi_raceinfo WHERE date = ? AND venue_id = ?', (self.date, self.venue_id))
+            raceinfo_id = raceinfo_id.fetchone()
+            # print(raceinfo_id)
 
+            raceinfo_id = raceinfo_id[0]
+            racetable = cur.execute(select_racetable, (new_row[3], raceinfo_id))
+            racetable = racetable.fetchone()
+            if racetable == None:
+                print('racetableインサートします')
+                sql_insert = 'INSERT INTO umacopi_racetable ([race_num], [raceinfo_id]) VALUES(?, ?)'
+                cur.execute(sql_insert, (new_row[3], raceinfo_id))
+            else:
+                print('racetableインサートはありません')
+                pass
 
-        select_raceinfo = 'SELECT date, venue_id FROM umacopi_raceinfo WHERE date = ? AND venue_id = ?'
-        venue_id = cur.execute('SELECT id FROM umacopi_mstvenue WHERE name = ?', (venue,))
-        venue_id = venue_id.fetchone()
-        venue_id = venue_id[0]
-        raceinfo = cur.execute(select_raceinfo, (date, venue_id))
-        raceinfo = raceinfo.fetchone()
-        if raceinfo == None:
-            print('raceinfoインサートします')
-            sql_insert = 'INSERT INTO umacopi_raceinfo ([date], [venue_id]) VALUES(?, ?)'
-            cur.execute(sql_insert, (day, venue_id))
-        else:
-            print('raceinfoインサートはありません')
-            pass
+    # =============================       umacopi_raceresults
+            select_raceresults = 'SELECT umaban, racetable_id FROM umacopi_raceresults WHERE umaban = ? AND racetable_id = ?'
+            racetable_id = cur.execute('SELECT id FROM umacopi_racetable WHERE race_num = ? AND raceinfo_id = ?', (new_row[3], raceinfo_id))
+            racetable_id = racetable_id.fetchone()
+            # print(racetable_id)
+
+            jockey_id = cur.execute('SELECT id FROM umacopi_mstjockey WHERE name = ?', (new_row[10],))
+            jockey_id = jockey_id.fetchone()
+            jockey_id = jockey_id[0]
+            # print("jockey_id", jockey_id)
+            
+            mark_id = cur.execute('SELECT id FROM umacopi_mstmark WHERE kind = ?', (new_row[8],))
+            mark_id = mark_id.fetchone()
+            mark_id = mark_id[0]
+            # print("mark_id", mark_id)
+
+            stable_id = cur.execute('SELECT id FROM umacopi_mststable WHERE name = ?', (new_row[11],))
+            stable_id = stable_id.fetchone()
+            stable_id = stable_id[0]
+            # print("stable_id", stable_id)
+
+            racetable_id = racetable_id[0]
+            raceresults = cur.execute(select_raceresults, (new_row[6], racetable_id))
+            raceresults = raceresults.fetchone()
+            if raceresults == None:
+                print('raceresultsインサートします')
+                sql_insert = 'INSERT INTO umacopi_raceresults ([rank],[frame],[umaban],[rev_umaban],[horse_name],[odds],[popularity],[jockey_id],[mark_id],[racetable_id],[stable_id]) VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+                cur.execute(sql_insert, (new_row[4], new_row[5], new_row[6], new_row[7], new_row[9], new_row[12], new_row[13], jockey_id, mark_id, racetable_id, stable_id))
+            else:
+                print('raceresultsインサートはありません')
+                pass
+
+# 作業用 (9, '2022/01/30', '佐賀競馬場', '11R', '--', 8, 10, 1, '--', 'オイカケマショウ', '長田進仁', '佐賀 中野博', 244.1, 10) 
+
+        # raceinfo = cur.execute('SELECT * FROM umacopi_raceinfo')
+        # raceinfo = raceinfo.fetchall()
+        # print(raceinfo)
+        # racetable = cur.execute('SELECT * FROM umacopi_racetable')
+        # racetable = racetable.fetchall()
+        # print(racetable)
+        raceresults = cur.execute('SELECT * FROM umacopi_raceresults')
+        raceresults = raceresults.fetchall()
+        
+        for r in raceresults:
+            print(r)
 
         conn.commit()
         cur.close()
@@ -306,8 +349,12 @@ class DbManager(RaceInfoAnalyzer):
 
 
 
-
-
+        # j = cur.execute('SELECT * FROM umacopi_mstjockey')
+        # j = j.fetchall()
+        # m = cur.execute('SELECT * FROM umacopi_mstmark')
+        # m = m.fetchall()
+        # s = cur.execute('SELECT * FROM umacopi_mststable')
+        # s = s.fetchall()
 
 
 # def execute(self, sql_select):
@@ -358,5 +405,5 @@ if __name__ == '__main__':
     # raceinfo.scraping_race_result()
 
     args = sys.argv
-    saveinfo = DbManager('/root/HorseRacingAnalyzer/web/db.sqlite3', args[1], args[2], args[3], args[4], int(args[5]))
+    saveinfo = DbManager('/root/test/umacopi/web/db.sqlite3', args[1], args[2], args[3], args[4], int(args[5]))
     saveinfo.aaa()
