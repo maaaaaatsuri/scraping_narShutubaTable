@@ -1,0 +1,7 @@
+mstjockey_insert = 'INSERT INTO umacopi_mstjockey ([name]) VALUES(?)'
+mstmark_insert = 'INSERT INTO umacopi_mstmark ([kind]) VALUES(?)'
+mststable_insert = 'INSERT INTO umacopi_mststable ([name]) VALUES(?)'
+mstvenue_insert = 'INSERT INTO umacopi_mstvenue ([name]) VALUES(?)'
+raceinfo_insert = 'INSERT INTO umacopi_raceinfo ([date],[venue]) VALUES(?,?)'
+racetable_insert = 'INSERT INTO umacopi_racetable ([race_number]) VALUES(?)'
+raceresults_insert = 'INSERT INTO umacopi_raceresults ([rank],[frame],[umaban],[rev_umaban],[horse_name],[odds],[popularity]) VALUES(?,?,?,?,?,?,?)'
