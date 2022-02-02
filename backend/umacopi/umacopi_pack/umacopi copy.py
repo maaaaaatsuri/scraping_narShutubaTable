@@ -170,3 +170,60 @@ if __name__ == '__main__':
     copi_nar.scraping_shutuba_table(args[2], args[3], args[4], int(args[5]))
     copi_nar.scraping_race_result()
     copi_nar.save_db()
+
+
+
+
+
+
+
+    # ===============================================DBに保存============================================================
+    # def save_db(self):
+    #     db_name = '/root/HorseRacingAnalyzer/web/db.sqlite3'
+    #     conn = sqlite3.connect(db_name)
+    #     cur = conn.cursor()
+
+    #     data_comparator = DataComparator()
+    #     for new_row in self.shutuba_table.itertuples(name=None):
+    #         sql_select = 'SELECT * FROM umacopi_narmodel WHERE held_date = ? AND horse_name = ?'
+    #         unique_key = (new_row[1], new_row[9])
+
+    #         old_row = cur.execute(sql_select, unique_key)
+    #         old_row = old_row.fetchall()
+
+    #         if old_row == []:
+    #             sql_insert = 'INSERT INTO umacopi_narmodel ([held_date],[venue],[race_number],[rank],[frame],[umaban],[rev_umaban],[mark],[horse_name],[jockey],[stable],[odds],[popularity]) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    #             new_row_data = (
+    #                 new_row[1], new_row[2], new_row[3], new_row[4], new_row[5], new_row[6],
+    #                 new_row[7], new_row[8], new_row[9], new_row[10], new_row[11], new_row[12], new_row[13]
+    #                 )
+    #             cur.execute(sql_insert, new_row_data)
+    #             temp_counts = 0
+    #         else:
+    #             old_row = old_row[0]
+    #             if not data_comparator.compare_data(new_row, old_row):
+    #                 sql_update = 'UPDATE umacopi_narmodel SET rank = ?, mark = ?, jockey = ?, odds = ?, popularity = ?  WHERE held_date = ? AND horse_name = ?'
+    #                 update_data = (new_row[4], new_row[8], new_row[10], new_row[12], new_row[13],   new_row[1], new_row[9])
+    #                 cur.execute(sql_update, update_data)
+    #                 temp_counts = 1
+    #             else:
+    #                 temp_counts = 2
+    #                 pass
+
+    #     if temp_counts == 0:
+    #         print('※ 新規データを追加しました。', '\n')
+    #     elif temp_counts == 1:
+    #         print('※ データを更新しました。', '\n')
+    #     else:
+    #         print('※ 更新はありません。', '\n')
+
+    #     conn.commit()
+    #     conn.close()
+
+
+# if __name__ == '__main__':
+#     args = sys.argv
+#     copi_nar = RaceInfoAnalyzer(args[1])
+#     copi_nar.scraping_shutuba_table(args[2], args[3], args[4], int(args[5]))
+#     copi_nar.scraping_race_result()
+#     copi_nar.save_db()
