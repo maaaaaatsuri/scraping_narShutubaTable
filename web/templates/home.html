@@ -10,39 +10,40 @@
 <body>
 {% block header %}<h1><a href='{% url "home" %}'>🏇うまコピ</a></h1>{% endblock header %}
 {% block contents %}
+
 <br>
+
 <h3>昨日のレース【{{ yesterday }}】</h3>
-  {% for y in yesterdayraces %}
-    <a href='{% url "yesterday_pick" yesterday_con y.venue %}'>
-      {{ y.held_date }} &thinsp; {{ y.venue }}
+  {% for yesterday_race in yesterday_races %}
+    <a href='{% url "yesterday" join_date_yesterday yesterday_race.venue.name %}'>
+      {{ yesterday_race.venue.name }}
     </a><br>
   {% endfor %}
 <br>
 
 <h3>今日のレース【{{ today }}】</h3>
-  {% for t in todayraces %}    
-    <a href='{% url "today_pick" today_con t.venue %}'>
-      {{ t.held_date }} &thinsp; {{ t.venue }}
+  {% for today_race in today_races %}
+    <a href='{% url "today" join_date_today today_race.venue.name %}'>
+      {{ today_race.venue.name }}
     </a><br>
   {% endfor %}
 <br>
 
 <h3>明日のレース【{{ tomorrow }}】</h3>
-  {% for tomo in tomorrowraces %}
-    <a href='{% url "tomorrow_pick" tomorrow_con tomo.venue %}'>
-      {{ tomo.held_date }} &thinsp; {{ tomo.venue }}
+  {% for tomorrow_race in tomorrow_races %}
+    <a href='{% url "tomorrow" join_date_tomorrow tomorrow_race.venue.name %}'>
+      {{ tomorrow_race.venue.name }}
     </a><br>
   {% endfor %}
 
 <br><br>
 
 <h3>その他のレース</h3>
-<a href='{% url "d_search" %}'>《開催日》</a>から探す<br>
-<a href='{% url "v_search" %}'>《開催場所》</a>から探す<br>
+<a href='d_search'>《開催日》</a>で探す<br>
+<a href='v_search'>《開催場所》</a>で探す<br>
 
 <br>
 
-<!-- 【{% now "F" %}{% now "j" %}日({% now "D" %})】 -->
 {% endblock contents %}
 </body>
 </html>

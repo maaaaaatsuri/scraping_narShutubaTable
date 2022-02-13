@@ -27,14 +27,16 @@
             {% endfor %}
         </datalist>
 
-    <label for="">厩舎で検索>></label><input type="search" size="22" name="query_c" placeholder="指定されていません" autocomplete="off" list="stable"><br>
+    <label for="">厩舎で検索>></label>
+    <input type="search" size="22" name="query_c" placeholder="指定されていません" autocomplete="off" list="stable"><br>
         <datalist id="stable">
             {% for stable in stables %}
                 <option value="{{ stable.name }}">
             {% endfor %}
         </datalist>
 
-    <button type="submit">検索する</button>
+    <input type="hidden" name="query_venue" value="{{ query_venue }}">
+    <button type="submit" name="query_date" value="{{ query_date }}">検索する</button>
 </form><br>
 
 
@@ -52,19 +54,19 @@
         <th>単勝オッズ</th>
         <th>人気</th>
    </tr>
-   {% for race_result in race_results %}
+   {% for search_result in search_results %}
    <tr>
-        <td>{{ race_result.racetable.race_num }}</td>
-        <td>{{ race_result.rank }}</td>
-        <td>{{ race_result.frame }}</td>
-        <td>{{ race_result.umaban }}</td>
-        <td>{{ race_result.rev_umaban }}</td>
-        <td>{{ race_result.horse_name }}</td>
-        <td>{{ race_result.mark }}</td>
-        <td>{{ race_result.jockey }}</td>
-        <td>{{ race_result.stable }}</td>
-        <td>{{ race_result.odds }}</td>
-        <td>{{ race_result.popularity }}</td>
+        <td>{{ search_result.racetable.race_num }}</td>
+        <td>{{ search_result.rank }}</td>
+        <td>{{ search_result.frame }}</td>
+        <td>{{ search_result.umaban }}</td>
+        <td>{{ search_result.rev_umaban }}</td>
+        <td>{{ search_result.horse_name }}</td>
+        <td>{{ search_result.mark }}</td>
+        <td>{{ search_result.jockey }}</td>
+        <td>{{ search_result.stable }}</td>
+        <td>{{ search_result.odds }}</td>
+        <td>{{ search_result.popularity }}</td>
    </tr>
    {% endfor %}
 </table><br><br>

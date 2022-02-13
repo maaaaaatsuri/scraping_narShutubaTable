@@ -6,7 +6,7 @@ class DataComparator():
         if len(new_data) != len(old_data):
             return False
         else:
-            for i in range(1, len(new_data)):
+            for i in range(0, len(new_data)):
                 if new_data[i] != old_data[i]:
                     return False
         return True

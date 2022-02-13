@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+<head>
+{% block title %}条件検索{% endblock %}
+</head>
+
+<body>
+{% block header %}<h1>日付から検索ページ</h1>{% endblock header %}
+{% block contents %}
+<br>
+<h3><a href='{% url "home" %}'>🏇うまコピ</a></h3>
+
+<br>
+
+<form>
+  <label for="">開催日を選択してください</label><input type="date" name="query_date" id="query_date">
+  <button type="submit" formaction='{% url "d_search_next" %}' name="">送信</button>
+</form>
+
+<br><br>
+
+
+{% endblock %}
+</body>
+</html>

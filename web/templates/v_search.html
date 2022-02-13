@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+<head>
+{% block title %}条件検索{% endblock %}
+</head>
+
+<body>
+{% block header %}<h1>開催場所から検索ページ</h1>{% endblock header %}
+{% block contents %}
+<br>
+<h3><a href='{% url "home" %}'>🏇うまコピ</a></h3>
+
+<br>
+
+<form action="" method="get">
+    <label for="">開催場所を選択してください>></label>
+    <input type="search" size="22" name="query_venue" placeholder="指定されていません" autocomplete="off" list="query_venue">
+        <datalist id="query_venue">
+            {% for venue in venues %}
+                <option value="{{ venue.name }}">
+            {% endfor %}
+        </datalist>
+    <button type="submit" formaction='{% url "v_search_next" %}'>送信</button>
+
+</form><br>
+
+<br><br>
+
+
+{% endblock %}
+</body>
+</html>

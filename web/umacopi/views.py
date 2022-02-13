@@ -1,237 +1,292 @@
-# from django.views.generic import TemplateView, ListView, DetailView, DeleteView
-# # from .models import NarModel
-# from django.http import HttpResponse
-# from django.shortcuts import render
-# from django.db.models import Q
-# import datetime
+from django.views.generic import TemplateView, ListView, DetailView, DeleteView
+from .models import Jockey, Venue, Stable, Mark, RaceInfo, RaceTable, RaceResults
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.db.models import Q
+import datetime
 
 # # Create your views here.
 
-# class HomeView(ListView):
-#     model = NarModel
-#     queryset = NarModel.objects.values('held_date','venue').distinct()
-#     template_name = 'home.html'
+# ============『ホーム画面』=====================================================================================
+class HomeView(ListView):
+    model = RaceInfo
+    queryset = RaceInfo.objects.all().select_related()
+    template_name = 'home.html'
 
-#     def get_context_data(self, **kwargs):
-#         ctx = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
 
-#         dt_today = datetime.datetime.now()
-#         dt_yesterday = dt_today - datetime.timedelta(days=1)
-#         dt_tomorrow = dt_today - datetime.timedelta(days=-1)
-#         today = dt_today.strftime('%Y/%m/%d') # 2022/##/##
-#         yesterday = dt_yesterday.strftime('%Y/%m/%d')
-#         tomorrow = dt_tomorrow.strftime('%Y/%m/%d')
-#         ctx['today'] = today
-#         ctx['yesterday'] = yesterday
-#         ctx['tomorrow'] = tomorrow
-#         ctx['today_con'] = dt_today.strftime('%Y%m%d') # 2022####
-#         ctx['yesterday_con'] = dt_yesterday.strftime('%Y%m%d')
-#         ctx['tomorrow_con'] = dt_tomorrow.strftime('%Y%m%d')
+        dt_today = datetime.datetime.now()
+        dt_yesterday = dt_today - datetime.timedelta(days=1)
+        dt_tomorrow = dt_today - datetime.timedelta(days=-1)
+        today = dt_today.strftime('%Y/%m/%d') # 2022/##/##
+        yesterday = dt_yesterday.strftime('%Y/%m/%d')
+        tomorrow = dt_tomorrow.strftime('%Y/%m/%d')
+        ctx['today'] = today
+        ctx['yesterday'] = yesterday
+        ctx['tomorrow'] = tomorrow
+        ctx['join_date_today'] = dt_today.strftime('%Y%m%d') # 2022####
+        ctx['join_date_yesterday'] = dt_yesterday.strftime('%Y%m%d')
+        ctx['join_date_tomorrow'] = dt_tomorrow.strftime('%Y%m%d')
 
-#         ctx['todayraces'] = NarModel.objects.all()
-#         ctx['todayraces'] = NarModel.objects.filter(held_date=today).values('held_date','venue').distinct()
-#         ctx['yesterdayraces'] = NarModel.objects.filter(held_date=yesterday).values('held_date','venue').distinct()
-#         ctx['tomorrowraces'] = NarModel.objects.filter(held_date=tomorrow).values('held_date','venue').distinct()
-        
-#         held_dates = NarModel.objects.values('held_date').distinct().order_by('held_date')
-#         date_list = [] # 2022##/##形式のリスト
-#         join_date_list = [] # 2022####形式のリスト
-#         for held_date in held_dates:
-#             for date in held_date.values():
-#                 date_list.append(date)
-#                 date = datetime.datetime.strptime(date, '%Y/%m/%d')
-#                 join_date = date.strftime('%Y%m%d')
-#                 join_date_list.append(join_date)
-#         datedict = {k: v for k, v in zip(date_list, join_date_list)}
-#         ctx['datedict'] = datedict
-#         ctx['venues'] = NarModel.objects.values('venue').distinct()
-        
-#         query_date = self.request.GET.get('query_date', default="")
-#         if query_date:
-#             date = datetime.datetime.strptime(query_date, '%Y%m%d')
-#             date = date.strftime('%Y/%m/%d')
-#             filtering_venues = NarModel.objects.filter(held_date=date).values('held_date', 'venue').distinct()
-#             ctx['filtering_venues'] = filtering_venues
-#         else:
-#             pass
-        
-#         return ctx
+        ctx['today_races'] = RaceInfo.objects.filter(date=today)
+        ctx['yesterday_races'] = RaceInfo.objects.filter(date=yesterday)
+        ctx['tomorrow_races'] = RaceInfo.objects.filter(date=tomorrow)
+        return ctx
 
+# ============『最近のレース画面』=====================================================================================
+class PickView(ListView):
+    model = RaceResults
+    queryset = RaceResults.objects.all().select_related()
+    template_name = 'pick.html'
 
-# class PickView(ListView):
-#     model = NarModel
-#     template_name = 'pick.html'
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        dt_today = datetime.datetime.now()
+        dt_yesterday = dt_today - datetime.timedelta(days=1)
+        dt_tomorrow = dt_today - datetime.timedelta(days=-1)
+        today = dt_today.strftime('%Y/%m/%d') # 2022/##/##
+        yesterday = dt_yesterday.strftime('%Y/%m/%d')
+        tomorrow = dt_tomorrow.strftime('%Y/%m/%d')
+        comparative_today = dt_today.strftime('%Y%m%d')
+        comparative_yesterday = dt_yesterday.strftime('%Y%m%d')
+        comparative_tomorrow = dt_tomorrow.strftime('%Y%m%d')
 
-#     def get_context_data(self, **kwargs):
-#         ctx = super().get_context_data(**kwargs)
-#         dt_today = datetime.datetime.now()
-#         dt_yesterday = dt_today - datetime.timedelta(days=1)
-#         dt_tomorrow = dt_today - datetime.timedelta(days=-1)
+        join_date_today = self.kwargs.get('join_date_today')
+        join_date_yesterday = self.kwargs.get('join_date_yesterday')
+        join_date_tomorrow = self.kwargs.get('join_date_tomorrow')
+        today_venue = self.kwargs.get('today_venue')
+        yesterday_venue = self.kwargs.get('yesterday_venue')
+        tomorrow_venue = self.kwargs.get('tomorrow_venue')
 
-#         today = dt_today.strftime('%Y/%m/%d') # 2022/##/##
-#         yesterday = dt_yesterday.strftime('%Y/%m/%d')
-#         tomorrow = dt_tomorrow.strftime('%Y/%m/%d')
-        
-#         tod = dt_today.strftime('%Y%m%d')
-#         ye = dt_yesterday.strftime('%Y%m%d')
-#         tom = dt_tomorrow.strftime('%Y%m%d')
-        
-#         today_con = self.kwargs.get('today_con')
-#         today_venue = self.kwargs.get('today_venue')
-#         yesterday_con = self.kwargs.get('yesterday_con')
-#         yesterday_venue = self.kwargs.get('yesterday_venue')
-#         tomorrow_con = self.kwargs.get('tomorrow_con')
-#         tomorrow_venue = self.kwargs.get('tomorrow_venue')
+        query_a = self.request.GET.get('query_a', default="")
+        query_b = self.request.GET.get('query_b', default="")
+        query_c = self.request.GET.get('query_c', default="")
 
-#         query_a = self.request.GET.get('query_a', default="")
-#         query_b = self.request.GET.get('query_b', default="")
-#         query_c = self.request.GET.get('query_c', default="")
+        if join_date_today == comparative_today:
+            today_venue_id = [venue.id for venue in Venue.objects.filter(name=today_venue)] # 当日一開催場所のIDを取得[i]
+            today_race_info = [today_race.id for today_race in RaceInfo.objects.filter(date=today, venue__in=today_venue_id)] # 日、場所指定[i]
+            today_race_table = [today_table.id for today_table in RaceTable.objects.filter(raceinfo__in=today_race_info)] # 一開催場所の全レース取得[i,i,i,...]
+            # horse_names = RaceResults.objects.filter(racetable__in=today_race_table).values('horse_name')
+            jockeys = [today_jockey.jockey for today_jockey in RaceResults.objects.filter(racetable__in=today_race_table).distinct()]
+            jockeys = [today_jockey for today_jockey in Jockey.objects.filter(name__in=jockeys).values('name')]
+            stables = [today_stable.stable for today_stable in RaceResults.objects.filter(racetable__in=today_race_table).distinct()]
+            stables = [today_stable for today_stable in Stable.objects.filter(name__in=stables).values('name')]
+            if query_a:
+                race_results = RaceResults.objects.filter(racetable__in=today_race_table).filter(Q(horse_name__icontains=query_a))
+            elif query_b:
+                Jockey_id = [Jockey_id.id for Jockey_id in Jockey.objects.filter(name=query_b)]
+                race_results = RaceResults.objects.filter(racetable__in=today_race_table).filter(Q(jockey__in=Jockey_id))
+            elif query_c:
+                stable_id = [stable_id.id for stable_id in Stable.objects.filter(name=query_c)]
+                race_results = RaceResults.objects.filter(racetable__in=today_race_table).filter(Q(stable__in=stable_id))
+            else:
+                race_results = RaceResults.objects.filter(racetable__in=today_race_table)
+        elif join_date_yesterday == comparative_yesterday:
+            yesterday_venue_id = [venue.id for venue in Venue.objects.filter(name=yesterday_venue)]
+            yesterday_race_info = [yesterday_race.id for yesterday_race in RaceInfo.objects.filter(date=yesterday, venue__in=yesterday_venue_id)]
+            yesterday_race_table = [yesterday_table.id for yesterday_table in RaceTable.objects.filter(raceinfo__in=yesterday_race_info)]
+            jockeys = [yesterday_jockey.jockey for yesterday_jockey in RaceResults.objects.filter(racetable__in=yesterday_race_table).distinct()]
+            jockeys = [yesterday_jockey for yesterday_jockey in Jockey.objects.filter(name__in=jockeys).values('name')]
+            stables = [yesterday_stable.stable for yesterday_stable in RaceResults.objects.filter(racetable__in=yesterday_race_table).distinct()]
+            stables = [yesterday_stable for yesterday_stable in Stable.objects.filter(name__in=stables).values('name')]
+            if query_a:
+                race_results = RaceResults.objects.filter(racetable__in=yesterday_race_table).filter(Q(horse_name__icontains=query_a))
+            elif query_b:
+                Jockey_id = [Jockey_id.id for Jockey_id in Jockey.objects.filter(name=query_b)]
+                race_results = RaceResults.objects.filter(racetable__in=yesterday_race_table).filter(Q(jockey__in=Jockey_id))
+            elif query_c:
+                stable_id = [stable_id.id for stable_id in Stable.objects.filter(name=query_c)]
+                race_results = RaceResults.objects.filter(racetable__in=yesterday_race_table).filter(Q(stable__in=stable_id))
+            else:
+                race_results = RaceResults.objects.filter(racetable__in=yesterday_race_table)
+        elif join_date_tomorrow == comparative_tomorrow:
+            tomorrow_venue_id = [venue.id for venue in Venue.objects.filter(name=tomorrow_venue)]
+            tomorrow_race_info = [tomorrow_race.id for tomorrow_race in RaceInfo.objects.filter(date=tomorrow, venue__in=tomorrow_venue_id)]
+            tomorrow_race_table = [tomorrow_table.id for tomorrow_table in RaceTable.objects.filter(raceinfo__in=tomorrow_race_info)]
+            jockeys = [tomorrow_jockey.jockey for tomorrow_jockey in RaceResults.objects.filter(racetable__in=tomorrow_race_table).distinct()]
+            jockeys = [tomorrow_jockey for tomorrow_jockey in Jockey.objects.filter(name__in=jockeys).values('name')]
+            stables = [tomorrow_stable.stable for tomorrow_stable in RaceResults.objects.filter(racetable__in=tomorrow_race_table).distinct()]
+            stables = [tomorrow_stable for tomorrow_stable in Stable.objects.filter(name__in=stables).values('name')]
+            if query_a:
+                race_results = RaceResults.objects.filter(racetable__in=tomorrow_race_table).filter(Q(horse_name__icontains=query_a))
+            elif query_b:
+                Jockey_id = [Jockey_id.id for Jockey_id in Jockey.objects.filter(name=query_b)]
+                race_results = RaceResults.objects.filter(racetable__in=tomorrow_race_table).filter(Q(jockey__in=Jockey_id))
+            elif query_c:
+                stable_id = [stable_id.id for stable_id in Stable.objects.filter(name=query_c)]
+                race_results = RaceResults.objects.filter(racetable__in=tomorrow_race_table).filter(Q(stable__in=stable_id))
+            else:
+                race_results = RaceResults.objects.filter(racetable__in=tomorrow_race_table)
+        else:
+            print('else')
+            race_results = None
 
-#         if today_con == tod:
-#             horsenames = NarModel.objects.filter(held_date=today, venue=today_venue).values('horse_name')
-#             jockeys = NarModel.objects.filter(held_date=today, venue=today_venue).values('jockey').distinct()
-#             stables = NarModel.objects.filter(held_date=today, venue=today_venue).values('stable').distinct()
-#             if query_a:
-#                 pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(horse_name__icontains=query_a))
-#             elif query_b:
-#                 pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(jockey__iexact=query_b)).distinct()
-#             elif query_c:
-#                 pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(stable__iexact=query_c)).distinct()
-#             else:
-#                 pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values()
-#         elif yesterday_con == ye:
-#             horsenames = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values('horse_name')
-#             jockeys = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values('jockey').distinct()
-#             stables = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values('stable').distinct()
-#             if query_a:
-#                 pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values().filter(Q(horse_name__icontains=query_a)).distinct()
-#             elif query_b:
-#                 pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values().filter(Q(jockey__iexact=query_b)).distinct()
-#             elif query_c:
-#                 pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values().filter(Q(stable__iexact=query_c)).distinct()
-#             else:
-#                 pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values()
-#         elif tomorrow_con == tom:
-#             horsenames = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values('horse_name')
-#             jockeys = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values('jockey').distinct()
-#             stables = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values('stable').distinct()
-#             if query_a:
-#                 pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values().filter(Q(horse_name__icontains=query_a)).distinct()
-#             elif query_b:
-#                 pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values().filter(Q(jockey__iexact=query_b)).distinct()
-#             elif query_c:
-#                 pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values().filter(Q(stable__iexact=query_c)).distinct()
-#             else:
-#                 pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values()
-#         else:
-#             pickdata = NarModel.objects.all()
-#         ctx['horsenames'] = horsenames
-#         ctx['jockeys'] = jockeys
-#         ctx['stables'] = stables
-#         ctx['pickdata'] = pickdata
-#         return ctx
+        ctx['jockeys'] = jockeys
+        ctx['stables'] = stables
+        ctx['race_results'] = race_results
+        return ctx
 
+# ============『開催日で探す』に関するVIEW=====================================================================================
+class DateSearchView(ListView): # 日付選択画面
+    model = RaceInfo
+    template_name = 'd_search.html'
 
-# class DateSearchView(ListView):
-#     model = NarModel
-#     template_name = 'date.html'
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        return ctx
 
-#     def get_context_data(self, **kwargs):
-#         ctx = super().get_context_data(**kwargs)
+class DateNextView(ListView): # 開催場所選択画面
+    model = RaceInfo
+    template_name = 'd_next.html'
 
-#         held_dates = NarModel.objects.values('held_date').distinct().order_by('held_date')
-#         date_list = [] # 2022##/##形式のリスト
-#         join_date_list = [] # 2022####形式のリスト
-#         for held_date in held_dates:
-#             for date in held_date.values():
-#                 date_list.append(date)
-#                 date = datetime.datetime.strptime(date, '%Y/%m/%d')
-#                 join_date = date.strftime('%Y%m%d')
-#                 join_date_list.append(join_date)
-#         datedict = {k: v for k, v in zip(date_list, join_date_list)}
-#         ctx['datedict'] = datedict
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
 
-#         dateselected = NarModel.objects.none()
-#         filtering_venues = NarModel.objects.none()
-#         query_date = self.request.GET.get('query_date', default="")
-#         if query_date:
-#             date = datetime.datetime.strptime(query_date, '%Y%m%d')
-#             date = date.strftime('%Y/%m/%d')
-#             filtering_venues = NarModel.objects.filter(held_date=date).values('venue').distinct()
-#             dateselected = NarModel.objects.filter(held_date=date).values()
-#         else:
-#             pass
-        
-#         query_venue = self.request.GET.get('query_venue', default="")
-#         if query_venue:
-#             dateselected = NarModel.objects.filter(held_date=date, venue=query_venue).values()
-#         else:
-#             pass
+        query_date = self.request.GET.get('query_date', default="")
+        join_date = query_date.replace('-', '')
+        search_venues = None
+        if join_date:
+            search_date = datetime.datetime.strptime(join_date, '%Y%m%d')
+            search_date = search_date.strftime('%Y/%m/%d')
+            search_venues = [search_venues.venue_id for search_venues in RaceInfo.objects.filter(date=search_date)]
+            search_venues = [search_venues for search_venues in Venue.objects.filter(id__in=search_venues)]
 
-#         ctx['filtering_venues'] = filtering_venues
-#         ctx['dateselected'] = dateselected
-#         return ctx
+        ctx['search_date'] = search_date
+        ctx['join_date'] = join_date
+        ctx['search_venues'] = search_venues
+        return ctx
 
+class DateResultView(ListView): # 検索レース表示画面
+    model = RaceInfo
+    template_name = 'd_result.html'
 
-# class VenueSelectedView(ListView):
-#     model = NarModel
-#     template_name = 'a.html'
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
 
-#     # def get_context_data(self, **kwargs):
-#     #     ctx = super().get_context_data(**kwargs)
+        query_date = self.request.GET.get('query_date', default="")
+        query_venue = self.request.GET.get('query_venue', default="")
+        ctx['query_date'] = query_date
+        ctx['query_venue'] = query_venue
 
-#     #     selected_venue = self.kwargs.get('selected_venue')
-#     #     date = NarModel.objects.filter(venue=selected_venue).values('held_date').distinct()
+        query_a = self.request.GET.get('query_a', default="")
+        query_b = self.request.GET.get('query_b', default="")
+        query_c = self.request.GET.get('query_c', default="")
 
-#     #     join_date = self.request.GET.get('join_date', default="")
-#     #     a = datetime.datetime.strptime(join_date, '%Y%m%d')
-#     #     a = a.strftime('%Y/%m/%d')
-#     #     b = NarModel.objects.none()
+        search_results = None
+        if query_date and query_venue:
+            search_date = datetime.datetime.strptime(query_date, '%Y%m%d')
+            search_date = search_date.strftime('%Y/%m/%d')
+            search_venue_id = [venue.id for venue in Venue.objects.filter(name=query_venue)]
+            search_race_info = [search_race.id for search_race in RaceInfo.objects.filter(date=search_date, venue__in=search_venue_id)]
+            search_race_table = [search_table.id for search_table in RaceTable.objects.filter(raceinfo__in=search_race_info)]
+            search_results = RaceResults.objects.filter(racetable__in=search_race_table)
 
-#     #     if join_date:
-#     #         b = NarModel.objects.filter(held_date=a, venue=selected_venue).values()
-#     #     else:
-#     #         pass
+            jockeys = [today_jockey.jockey for today_jockey in RaceResults.objects.filter(racetable__in=search_race_table).distinct()]
+            jockeys = [today_jockey for today_jockey in Jockey.objects.filter(name__in=jockeys).values('name')]
+            stables = [today_stable.stable for today_stable in RaceResults.objects.filter(racetable__in=search_race_table).distinct()]
+            stables = [today_stable for today_stable in Stable.objects.filter(name__in=stables).values('name')]
 
-#     #     ctx['date'] = date
-#     #     ctx['b'] = b
-#     #     return ctx
+            if query_a:
+                search_results = RaceResults.objects.filter(racetable__in=search_race_table).filter(Q(horse_name__icontains=query_a))
+            elif query_b:
+                Jockey_id = [Jockey_id.id for Jockey_id in Jockey.objects.filter(name=query_b)]
+                search_results = RaceResults.objects.filter(racetable__in=search_race_table).filter(Q(jockey__in=Jockey_id))
+            elif query_c:
+                stable_id = [stable_id.id for stable_id in Stable.objects.filter(name=query_c)]
+                search_results = RaceResults.objects.filter(racetable__in=search_race_table).filter(Q(stable__in=stable_id))
 
-
-# class aView(ListView):
-#     model = NarModel
-#     template_name = 'datesearch.html'
-
-# #     def get_context_data(self, **kwargs):
-# #         ctx = super().get_context_data(**kwargs)
-# #         held_dates = NarModel.objects.values('held_date').distinct().order_by('held_date')
-# #         held_venues = NarModel.objects.values('venue').distinct()
-
-# #         date_list = [] # 2022##/##形式のリスト
-# #         join_date_list = [] # 2022####形式のリスト
-# #         for held_date in held_dates:
-# #             for date in held_date.values():
-# #                 date_list.append(date)
-# #                 date = datetime.datetime.strptime(date, '%Y/%m/%d')
-# #                 join_date = date.strftime('%Y%m%d')
-# #                 join_date_list.append(join_date)
-# #         datedict = {k: v for k, v in zip(date_list, join_date_list)}
-# #         ctx['datedict'] = datedict
-# #         ctx['held_venues'] = held_venues
-# #         return ctx
+        ctx['jockeys'] = jockeys
+        ctx['stables'] = stables
+        ctx['search_results'] = search_results
+        return ctx
 
 
-# # <h5>◆開催場所から探す</h5>
-# # <label for="select_venue">開催日を選択してください:</label><br>
-# #   {% for v in venues %}
-# #     <a href='{% url "v_search" %}'>{{ v.venue }}</a>
-# #   {% endfor %}
+# ============『開催場所で探す』関連のVIEW=====================================================================================
+class VenueSearchView(ListView):
+    model = RaceInfo
+    template_name = 'v_search.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        venues =  Venue.objects.all()
+        ctx['venues'] = venues
+        return ctx
+
+class VenueNextView(ListView):
+    model = RaceInfo
+    template_name = 'v_next.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        query_venue = self.request.GET.get('query_venue', default="")
+        search_venue_id = [search_venue.id for search_venue in Venue.objects.filter(name=query_venue)]
+        search_dates = [search_date.date for search_date in RaceInfo.objects.filter(venue__in=search_venue_id)]
+
+        date_list = [search_date for search_date in search_dates] # 2022##/##形式のリスト
+        join_date_list = [] # 2022####形式のリスト
+        for date in date_list: # ['2022/02/06', '2022/02/08', '2022/02/12', '2022/02/13']
+            date = datetime.datetime.strptime(date, '%Y/%m/%d')
+            join_date = date.strftime('%Y%m%d') # ['20220206', '20220208', '20220212', '20220213']
+            join_date_list.append(join_date)
+        search_dates_dict = {k: v for k, v in zip(date_list, join_date_list)}
+        print('search_dates_dict', search_dates_dict, type(search_dates_dict))
+
+        ctx['query_venue'] = query_venue
+        ctx['search_dates_dict'] = search_dates_dict
+        return ctx
+
+class VenueResultView(ListView):
+    model = RaceInfo
+    template_name = 'v_result.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        query_date = self.request.GET.get('query_date', default="")
+        query_venue = self.request.GET.get('query_venue', default="")
+        ctx['query_date'] = query_date
+        ctx['query_venue'] = query_venue
+
+        query_a = self.request.GET.get('query_a', default="")
+        query_b = self.request.GET.get('query_b', default="")
+        query_c = self.request.GET.get('query_c', default="")
+
+        search_results = None
+        if query_date and query_venue:
+            search_date = datetime.datetime.strptime(query_date, '%Y%m%d')
+            search_date = search_date.strftime('%Y/%m/%d')
+            search_venue_id = [venue.id for venue in Venue.objects.filter(name=query_venue)]
+            search_race_info = [search_race.id for search_race in RaceInfo.objects.filter(date=search_date, venue__in=search_venue_id)]
+            search_race_table = [search_table.id for search_table in RaceTable.objects.filter(raceinfo__in=search_race_info)]
+            search_results = RaceResults.objects.filter(racetable__in=search_race_table)
+
+            jockeys = [today_jockey.jockey for today_jockey in RaceResults.objects.filter(racetable__in=search_race_table).distinct()]
+            jockeys = [today_jockey for today_jockey in Jockey.objects.filter(name__in=jockeys).values('name')]
+            stables = [today_stable.stable for today_stable in RaceResults.objects.filter(racetable__in=search_race_table).distinct()]
+            stables = [today_stable for today_stable in Stable.objects.filter(name__in=stables).values('name')]
+
+            if query_a:
+                search_results = RaceResults.objects.filter(racetable__in=search_race_table).filter(Q(horse_name__icontains=query_a))
+            elif query_b:
+                Jockey_id = [Jockey_id.id for Jockey_id in Jockey.objects.filter(name=query_b)]
+                search_results = RaceResults.objects.filter(racetable__in=search_race_table).filter(Q(jockey__in=Jockey_id))
+            elif query_c:
+                stable_id = [stable_id.id for stable_id in Stable.objects.filter(name=query_c)]
+                search_results = RaceResults.objects.filter(racetable__in=search_race_table).filter(Q(stable__in=stable_id))
+
+        ctx['jockeys'] = jockeys
+        ctx['stables'] = stables
+        ctx['search_results'] = search_results
+        return ctx
 
 
-
-
-
-
+# class TableDeleteView(DeleteView):
+#     """テーブル削除"""
+#     model = RaceInfo
+#     success_url = reverse_lazy('inputs:tables')
+#     template_name = 'delete.html'
 
 
 # ####################################################################################################
@@ -241,79 +296,9 @@
 # #     print("sample")
 # #     date = datetime.datetime.strptime(join_date, '%Y%m%d')
 # #     date = date.strftime('%Y/%m/%d')
-# #     venues = NarModel.objects.filter(held_date=date).values('venue').distinct()
+# #     venues = RaceInfo.objects.filter(date=date).values('venue').distinct()
 # #     venues = { 'venues': venues }
 # #     return render(request, 'therace.html', venues)
-
-
-#         # join_date = self.kwargs.get('join_date')
-    
-#         # if join_date:
-#         #     date = datetime.datetime.strptime(join_date, '%Y%m%d')
-#         #     date = date.strftime('%Y/%m/%d')
-#         #     venues = NarModel.objects.filter(held_date=date).values('venue').distinct()
-#         # else:
-#         #     print("else")
-#         #     pass
-
-
-
-
-
-# class VenueSearchView(ListView):
-#     model = NarModel
-#     template_name = 'search.html'
-
-#     # def get_context_data(self, **kwargs):
-#     #     ctx = super().get_context_data(**kwargs)
-
-#     #     pickdatav = NarModel.objects.values('venue').distinct()
-#     #     ctx['pickdatav'] = pickdatav
-#     #     return ctx
-
-
-
-
-
-#         # join_date = self.kwargs.get('join_date')
-#         # # query_c = self.request.GET.get('query_c', default="")
-#         # print(join_date)
-
-#         # if join_date:
-#         #     date_search_venue = NarModel.objects.filter(held_date=join_date).values('venue')
-#         # #     if query_a:
-#         # #         pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(horse_name__icontains=query_a))
-#         # #     elif query_b:
-#         # #         pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(jockey__iexact=query_b)).distinct()
-#         # #     elif query_c:
-#         # #         pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values().filter(Q(stable__iexact=query_c)).distinct()
-#         # #     else:
-#         # #         pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values()
-#         # # elif yesterday_con == ye:
-#         # else:
-#         #     pass
-
-#         # # ctx['datesearchvenue'] = date_search_venue
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # # def dispatch(self, request, *args, **kwargs,):
 # #     print('DISPATCH')
@@ -328,43 +313,7 @@
 # #     return HttpResponse(200)
 
 
-
-# # def today_pick(request, today_con, today_venue):
-# #     dt_today = datetime.datetime.now()
-# #     today = dt_today.strftime('%Y/%m/%d')
-# #     pickdata = NarModel.objects.filter(held_date=today, venue=today_venue).values()
-# #     ctx = { 'pickdata': pickdata,
-# #             'today': today,
-# #             'today_con': today_con}
-# #     return render(request, 'pick.html', ctx)
-
-# # def yesterday_pick(request, yesterday_con, yesterday_venue):
-# #     dt_today = datetime.datetime.now()
-# #     dt_yesterday = dt_today - datetime.timedelta(days=1)
-# #     yesterday = dt_yesterday.strftime('%Y/%m/%d')
-# #     pickdata = NarModel.objects.filter(held_date=yesterday, venue=yesterday_venue).values()
-# #     ctx = { 'pickdata': pickdata,
-# #             'yesterday': yesterday,
-# #             'yesterday_con': yesterday_con}
-# #     return render(request, 'pick.html', ctx)
-
-# # def tomorrow_pick(request, tomorrow_con, tomorrow_venue):
-# #     dt_today = datetime.datetime.now()
-# #     dt_tomorrow = dt_today - datetime.timedelta(days=-1)
-# #     tomorrow = dt_tomorrow.strftime('%Y/%m/%d')
-# #     pickdata = NarModel.objects.filter(held_date=tomorrow, venue=tomorrow_venue).values()
-# #     ctx = { 'pickdata': pickdata,
-# #             'tomorrow': tomorrow,
-# #             'tomorrow_con': tomorrow_con}
-# #     return render(request, 'pick.html', ctx)
-
-
-
 # # class DeleteView(DeleteView):
-# #     model = NarModel
+# #     model = RaceInfo
 # #     template_name = 'delete.html'
 # #     success_url = reverse_lazy('pick')
-
-#         # ctx['today_venue'] = NarModel.objects.filter(held_date=today).values('venue').distinct()
-#         # ctx['yesterday_venue'] = NarModel.objects.filter(held_date=yesterday).values('venue').distinct()
-#         # ctx['tomorrow_venue'] = NarModel.objects.filter(held_date=tomorrow).values('venue').distinct()

@@ -1,7 +1,0 @@
-SELECT name FROM umacopi_mstjockey WHERE name = ?
-'SELECT kind FROM umacopi_mstmark WHERE kind = ?'
-'SELECT name FROM umacopi_mststable WHERE name = ?'
-'SELECT name FROM umacopi_mstvenue WHERE name = ?'
-'SELECT date, venue_id FROM umacopi_raceinfo WHERE date = ? AND venue_id = ?'
-'SELECT race_num, raceinfo_id FROM umacopi_racetable WHERE race_num = ? AND raceinfo_id = ?'
-'SELECT umaban, racetable_id FROM umacopi_raceresults WHERE umaban = ? AND racetable_id = ?'

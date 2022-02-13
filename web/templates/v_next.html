@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+<head>
+{% block title %}条件検索{% endblock %}
+</head>
+
+<body>
+{% block header %}<h1>開催ネクストページ</h1>{% endblock header %}
+{% block contents %}
+<br>
+<h3><a href='{% url "home" %}'>🏇うまコピ</a></h3>
+<br>
+<div>【選択中の開催場所：{{ query_venue }}】</div>
+<br>
+<form action="" method="get">
+    <label for="">開催日を選択してください>></label>
+    <!-- <input type="search" size="22" name="" placeholder="指定されていません" autocomplete="off" list="query_date">
+        <datalist id="query_date">
+            {% for search_date, join_date in search_dates_dict.items %}
+                <option>{{ search_date }}</option>
+                <option><input type="hidden" name="query_date" value="{{ join_date }}"></option>
+            {% endfor %}
+        </datalist>
+    <button type="submit" name="query_venue" value="{{ query_venue }}" formaction='{% url "v_search_result" %}'>送信</button> -->
+
+    <select name="query_date" >
+        {% for search_date, join_date in search_dates_dict.items %}
+            <option value="{{ join_date }}">{{ search_date }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" name="query_venue" value="{{ query_venue }}" formaction='{% url "v_search_result" %}'>送信</button>
+
+</form><br>
+
+<br><br>
+
+
+{% endblock %}
+</body>
+</html>
