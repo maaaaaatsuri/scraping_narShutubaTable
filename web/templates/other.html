@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+  <head>{% block title %}umacopiその他のレース{% endblock %}</head>
+
+  <body>
+    <div>{% block header %}{% endblock header %}</div>
+    <div>
+        {% block contents %}
+        <div id="infoContainer">
+			<div class="pageHeader"></div>
+			<div class="subMenu">
+			  <ul class="clearfix">
+			  <li><a id="TodayRaceInfoTop" href='{% url "home" %}'>最近のレース</a></li>
+			  <li><a id="MonthlyConveneInfoTop" href='{% url "other" %}'>その他のレース</a></li>
+			  <li><a id="calendar" href='{% url "edit" %}'>レースを編集する</a></li>
+			  </ul>
+			</div>
+		</div>
+        <div class="innerWrapper">
+            <h3>その他のレース</h3>
+            <table class="course">
+                <tbody>
+                    <tr>
+                        <th class="other">検索方法を選択できます</th>
+                    </tr>
+                    <tr>
+                        <td>
+                        <a href='{% url "d_search" %}' class="searchMethod">《開催日》で探す</a>
+                        <a href='{% url "v_search" %}' class="searchMethod">《開催場所》で探す</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        {% endblock contents %}
+    </div>
+  </body>
+</html>

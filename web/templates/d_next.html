@@ -3,34 +3,32 @@
 
 <!doctype html>
 <html lang="ja">
-<head>
-{% block title %}条件検索{% endblock %}
-</head>
+    <head>
+    {% block title %}umacopi開催日検索2{% endblock %}
+    </head>
 
-<body>
-{% block header %}<h1>日付ネクストページ</h1>{% endblock header %}
-{% block contents %}
-<br>
-<h3><a href='{% url "home" %}'>🏇うまコピ</a></h3>
-<br>
-<div>【選択中の開催日：{{ search_date }}】</div>
-<br>
-<form action="" method="get">
-    <label for="">開催場所を選択してください>></label>
-    <input type="search" size="22" name="query_venue" placeholder="指定されていません" autocomplete="off" list="query_venue">
-        <datalist id="query_venue">
-            {% for search_venue in search_venues %}
-                <option value="{{ search_venue }}">
-            {% endfor %}
-        </datalist>
-    <button type="submit" formaction='{% url "d_search_result" %}' name="query_date" value="{{ join_date }}">送信</button>
-
-</form><br>
-
-
-<br><br>
-
-
-{% endblock %}
-</body>
+    <body>
+        {% block header %}<h1>日付ネクストページ</h1>{% endblock header %}
+        {% block contents %}
+        <div class="selected">【 選択中の開催日 : {{ search_date }} 】</div>
+        <div>
+            <form class="search-form" action="" method="get">
+                <div class="sort">
+                    <div class="sort-01">
+                        <label class="label-01" for="">開催場所を選択してください > ></label>
+                        <input type="search" size="22" name="query_venue" placeholder="指定されていません" autocomplete="off" list="query_venue" required>
+                            <datalist id="query_venue">
+                                {% for search_venue in search_venues %}
+                                    <option value="{{ search_venue }}">
+                                {% endfor %}
+                            </datalist>
+                    </div>
+                </div>
+                <div class="btn">
+                    <button class="btn-01" type="submit" formaction='{% url "d_search_result" %}' name="query_date" value="{{ join_date }}">送 信</button>
+                </div>
+            </form>
+        </div>
+        {% endblock %}
+    </body>
 </html>

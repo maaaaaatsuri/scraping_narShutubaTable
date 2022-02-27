@@ -3,16 +3,24 @@
 
 <!doctype html>
 <html lang="ja">
-<head>
-{% block title %}過去データ整理{% endblock %}
-</head>
-<body>
-{% block header %}
+  <head>
+    {% block head %}{% endblock %}
+    {% block title %}umacopi削除確認{% endblock %}
+  </head>
 
-
-
-{% block contents %}
-
-{% endblock %}
-</body>
+  <body>
+    {% block header %}<h1><a href='{% url "home" %}'>🏇うまコピ</a></h1>{% endblock header %}
+    {% block contents %}
+    
+    <p class="deleteMessage">このレースを本当に削除しますか ?</p>
+      <form class="deleteForm" method="post">{% csrf_token %}
+        <span class="edit-race">【 {{ object.date }} : {{ object.venue.name }} 】</span>
+        <div class="deleteBtnSet">
+          <a href='{% url "organize" %}'><div class="btn btn-cancel">キャンセル</div></a>
+          <input type="submit" class="btn btn-danger" value="削 除">
+        </div>
+      </form>
+      
+    {% endblock %}
+  </body>
 </html>

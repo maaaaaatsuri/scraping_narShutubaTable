@@ -4,32 +4,62 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8">
-
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/copy.css' %}">
     <title>{% block title %}{% endblock %}</title>
-
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-
     {% block head %}{% endblock %}
   </head>
 
   <body>
-    <div class="container">
-      <header class="d-flex justify-content-center py-3">
-        <ul class="nav nav-pills">
-          <li class="nav-item"><a href="#" class="nav-link active">Home</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Features</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Pricing</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">FAQs</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">About</a></li>
-        </ul>
-      </header>
-     </div>
-    {% block header %}{% endblock %}
+    <div class="i">
+      <div class="innerWrapper2">
+        <header>
+          <div class="headerInner">
+            <div class="titleArea">
+              <h1>
+                <span>【地方競馬】出馬表並び替えアプリ</span>
+                <a href='{% url "home" %}'>UmaCopi</a>
+              </h1>
+            </div>
+          </div>
+          <div class="globalNavi">
+            <ul class="gNavi clearfix">
+              <li>
+                <a href='{% url "home" %}'>
+                  <p>HOME</p>
+                </a>
+              </li>
+              <li>
+                <a href='{% url "use" %}'>
+                  <p>使い方</p>
+                </a>
+              </li>
+              <li>
+                <a href='{% url "making" %}'>
+                  <p>MEMO</p>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="breadCrumb"></div>
+        </header>
+      </div>
+    </div>
 
-    {% block contents %}{% endblock %}
+    <div>{% block contents %}{% endblock %}</div>
 
-    {% block footer %}{% endblock %}
-
+    <div>
+      <div class="innerWrapper2">
+        <footer class="footer">
+          <ul class="footerMenu">
+            <li><a href='{% url "home" %}'>HOME</a></li>
+            <li><a href='{% url "making" %}' class="borderLine">サイトマップ</a></li>
+            <li><a href='{% url "making" %}'>関連リンク</a></li>
+          </ul>
+        </footer>
+      </div>
+    </div>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
   </body>
 </html>

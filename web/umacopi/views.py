@@ -3,6 +3,7 @@ from .models import Jockey, Venue, Stable, Mark, RaceInfo, RaceTable, RaceResult
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.db.models import Q
+from django.urls import reverse_lazy
 import datetime
 
 # # Create your views here.
@@ -33,6 +34,14 @@ class HomeView(ListView):
         ctx['yesterday_races'] = RaceInfo.objects.filter(date=yesterday)
         ctx['tomorrow_races'] = RaceInfo.objects.filter(date=tomorrow)
         return ctx
+
+class OtherView(ListView):
+    model = RaceInfo
+    template_name = 'other.html'
+
+class EditView(ListView):
+    model = RaceInfo
+    template_name = 'edit.html'
 
 # ============『最近のレース画面』=====================================================================================
 class PickView(ListView):
@@ -173,6 +182,8 @@ class DateResultView(ListView): # 検索レース表示画面
         query_b = self.request.GET.get('query_b', default="")
         query_c = self.request.GET.get('query_c', default="")
 
+        jockeys = None
+        stables = None
         search_results = None
         if query_date and query_venue:
             search_date = datetime.datetime.strptime(query_date, '%Y%m%d')
@@ -282,38 +293,57 @@ class VenueResultView(ListView):
         return ctx
 
 
-# class TableDeleteView(DeleteView):
-#     """テーブル削除"""
-#     model = RaceInfo
-#     success_url = reverse_lazy('inputs:tables')
-#     template_name = 'delete.html'
+# ============『レース整理』関連のVIEW=====================================================================================
+class OrganizeView(ListView):
+    model = RaceInfo
+    template_name = 'organize.html'
+    paginate_by = 20
+
+class DetailView(DetailView):
+    model = RaceInfo
+    template_name = 'detail.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        query_pk = self.request.GET.get('pk', default="")
+        race_info = RaceInfo.objects.filter(pk=query_pk)
+        race_table = RaceTable.objects.filter(raceinfo__in=race_info)
+        race_results = RaceResults.objects.filter(racetable__in=race_table)
+        ctx['race_results'] = race_results
+        return ctx
+
+class DeleteView(DeleteView):
+    model = RaceInfo
+    template_name = 'delete.html'
+    success_url = reverse_lazy('organize')
+
+
+def making(request):
+    return render(request, 'making.html')
+
+def use(request):
+    return render(request, 'use.html')
 
 
 # ####################################################################################################
 
+# def sample(request):
+#     print("sample")
+#     date = datetime.datetime.strptime(join_date, '%Y%m%d')
+#     date = date.strftime('%Y/%m/%d')
+#     venues = RaceInfo.objects.filter(date=date).values('venue').distinct()
+#     venues = { 'venues': venues }
+#     return render(request, 'therace.html', venues)
 
-# # def sample(request):
-# #     print("sample")
-# #     date = datetime.datetime.strptime(join_date, '%Y%m%d')
-# #     date = date.strftime('%Y/%m/%d')
-# #     venues = RaceInfo.objects.filter(date=date).values('venue').distinct()
-# #     venues = { 'venues': venues }
-# #     return render(request, 'therace.html', venues)
+# def dispatch(self, request, *args, **kwargs,):
+#     print('DISPATCH')
+#     return super().dispatch(request, *args, **kwargs)
 
-# # def dispatch(self, request, *args, **kwargs,):
-# #     print('DISPATCH')
-# #     return super().dispatch(request, *args, **kwargs)
+# def get(self, request, *args, **kwargs):
+#     print('GET')
+#     return super().get(request, *args, **kwargs)
 
-# # def get(self, request, *args, **kwargs):
-# #     print('GET')
-# #     return super().get(request, *args, **kwargs)
-
-# # def post(self, request, *args, **kwargs):
-# #     print('POST')
-# #     return HttpResponse(200)
-
-
-# # class DeleteView(DeleteView):
-# #     model = RaceInfo
-# #     template_name = 'delete.html'
-# #     success_url = reverse_lazy('pick')
+# def post(self, request, *args, **kwargs):
+#     print('POST')
+#     return HttpResponse(200)

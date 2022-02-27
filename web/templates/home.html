@@ -3,47 +3,55 @@
 
 <!doctype html>
 <html lang="ja">
-<head>
-{% block title %}ホーム{% endblock %}
-</head>
+  <head>
+	{% block head %}{% endblock %}
+	{% block title %}umacopiホーム{% endblock %}
+  </head>
 
-<body>
-{% block header %}<h1><a href='{% url "home" %}'>🏇うまコピ</a></h1>{% endblock header %}
-{% block contents %}
-
-<br>
-
-<h3>昨日のレース【{{ yesterday }}】</h3>
-  {% for yesterday_race in yesterday_races %}
-    <a href='{% url "yesterday" join_date_yesterday yesterday_race.venue.name %}'>
-      {{ yesterday_race.venue.name }}
-    </a><br>
-  {% endfor %}
-<br>
-
-<h3>今日のレース【{{ today }}】</h3>
-  {% for today_race in today_races %}
-    <a href='{% url "today" join_date_today today_race.venue.name %}'>
-      {{ today_race.venue.name }}
-    </a><br>
-  {% endfor %}
-<br>
-
-<h3>明日のレース【{{ tomorrow }}】</h3>
-  {% for tomorrow_race in tomorrow_races %}
-    <a href='{% url "tomorrow" join_date_tomorrow tomorrow_race.venue.name %}'>
-      {{ tomorrow_race.venue.name }}
-    </a><br>
-  {% endfor %}
-
-<br><br>
-
-<h3>その他のレース</h3>
-<a href='d_search'>《開催日》</a>で探す<br>
-<a href='v_search'>《開催場所》</a>で探す<br>
-
-<br>
-
-{% endblock contents %}
-</body>
+  <body>
+	<div>{% block header %}{% endblock header %}</div>
+    <div>
+      	{% block contents %}
+		<div id="infoContainer">
+			<div class="pageHeader"></div>
+			<div class="subMenu">
+			  <ul class="clearfix">
+			  <li><a id="TodayRaceInfoTop" href='{% url "home" %}'>最近のレース</a></li>
+			  <li><a id="MonthlyConveneInfoTop" href='{% url "other" %}'>その他のレース</a></li>
+			  <li><a id="calendar" href='{% url "edit" %}'>レースを編集する</a></li>
+			  </ul>
+			</div>
+		</div>
+	  	<div class="innerWrapper">
+			<h3>最近のレース</h3>
+			<table class="course">
+				<tbody>
+					<tr>
+						<th class="">昨日のレース【{{ yesterday }}】</th>
+						<th class="active">本日【{{ today }}】</th>
+						<th class="">明日のレース【{{ tomorrow }}】</th>
+					</tr>
+					<tr>
+						<td>
+						{% for yesterday_race in yesterday_races %}
+							<a href="{% url 'yesterday' join_date_yesterday yesterday_race.venue.name %}" class="courseName">{{ yesterday_race.venue.name }}</a>
+						{% endfor %}
+						</td>
+						<td>
+						{% for today_race in today_races %}
+							<a href='{% url "today" join_date_today today_race.venue.name %}' class="courseName">{{ today_race.venue.name }}</a>
+						{% endfor %}
+						</td>
+						<td>
+						{% for tomorrow_race in tomorrow_races %}
+							<a href='{% url "tomorrow" join_date_tomorrow tomorrow_race.venue.name %}' class="courseName">{{ tomorrow_race.venue.name }}</a>
+						{% endfor %}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+	  	</div>
+      	{% endblock contents %}
+    </div>
+  </body>
 </html>

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+      <head>
+            {% block title %}umacopi削除{% endblock %}
+      </head>
+
+      <body>
+            {% block header %}<h1>detail.htmk</h1>{% endblock %}
+            {% block contents %}
+            <div class="table-div">
+                  <table border="1" class="table table-striped">
+                      <tr class="t-head">
+                          <th>レース</th>
+                          <th>着順</th>
+                          <th>枠</th>
+                          <th>馬番</th>
+                          <th>逆番</th>
+                          <th>馬名</th>
+                          <th>印</th>
+                          <th>騎手</th>
+                          <th>厩舎</th>
+                          <th>単勝オッズ</th>
+                          <th>人気</th>
+                      </tr>
+                      {% for race_result in race_results %}
+                          <tr>
+                              <td>{{ race_result.racetable.race_num }}</td>
+                              <td class="num rank">{{ race_result.rank }}</td>
+                              <td class="num frame">{{ race_result.frame }}</td>
+                              <td class="num umaban">{{ race_result.umaban }}</td>
+                              <td class="num rev">{{ race_result.rev_umaban }}</td>
+                              <td class="horseName">{{ race_result.horse_name }}</td>
+                              <td>{{ race_result.mark }}</td>
+                              <td class="value jokey">{{ race_result.jockey }}</td>
+                              <td class="value stable">{{ race_result.stable }}</td>
+                              <td>{{ race_result.odds }}</td>
+                              <td>{{ race_result.popularity }}</td>
+                          </tr>
+                      {% endfor %}
+                  </table>
+            </div>
+            {% endblock %}
+      </body>
+</html>
