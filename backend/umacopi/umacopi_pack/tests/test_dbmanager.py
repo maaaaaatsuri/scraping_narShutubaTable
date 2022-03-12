@@ -1,7 +1,14 @@
 import pytest
 import pandas as pd
-from umacopi_pack.data_comparator import DataComparator
-from umacopi_pack.db_manager import DbManager
+import os
+import sys
+
+rootdir = os.path.dirname(os.path.dirname(__file__))
+sys.path.extend([rootdir])
+
+from data_comparator import DataComparator
+from db_manager import DbManager
+
 
 
 # ===== DbManagerテスト
