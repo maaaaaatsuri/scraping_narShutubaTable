@@ -11,18 +11,9 @@ from db_manager import DbManager
 import pandas as pd
 import time
 import sys
-# import argparse
 
-# parser = argparse.ArgumentParser(prog='', usage='', description='')
-# parser.add_argument('var1', help='開催場所名("XX競馬場")')
-# parser.add_argument('var2', help='年(20XX)', type=int)
-# parser.add_argument('var3', help='月(XX)', type=int)
-# parser.add_argument('var4', help='日(XX)', type=int)
-# parser.add_argument('var5', help='取得開始レース番号(XX)', type=int)
-# args = parser.parse_args()
-# print(args)
 
-# レース情報分析クラス(コマンドライン引数に["開催場所"、"年"、"月"、"日"、"レース番号"]を入力)
+
 class RaceInfoAnalyzer():
     def __init__(self, venue, year, month, day, race_num):
         self.venue = venue
@@ -74,7 +65,7 @@ class RaceInfoAnalyzer():
             if not elems: # これ以降のループにはデータがない
                 if self.shutuba_table.empty: # そもそも1レース目からデータがない、出馬表情報が0
                     self.browser.quit()
-                    print('\n', self.date, "に", self.venue, "で行われるレースはありません。", '\n'*2)
+                    print(self.date, "に", self.venue, "で行われるレースはありません。", '\n')
                     return self.shutuba_table
             if not elems:
                 break
@@ -131,7 +122,6 @@ class RaceInfoAnalyzer():
     # 着順を取得
     def scraping_race_result(self):
         if self.shutuba_table.empty: # 出馬表がなければ処理を行わない
-            print('結果処理なし')
             return 
 
         for race_id in self.race_id_lst:
@@ -157,8 +147,9 @@ class RaceInfoAnalyzer():
         pd.set_option('display.max_rows', 3)
         print('='*5, '【 レ ー ス 結 果 】', '='*80, '\n', self.shutuba_table, '\n')
 
-        self.db_manager = DbManager(self.venue, self.date)
-        self.db_manager.save_db(self.shutuba_table)
+        dbname = '/root/test/umacopi/web/db.sqlite3'
+        self.db_manager = DbManager(dbname)
+        self.db_manager.save_db(self.venue, self.date, self.shutuba_table)
 
 
 if __name__ == '__main__':

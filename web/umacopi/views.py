@@ -72,6 +72,9 @@ class PickView(ListView):
         query_b = self.request.GET.get('query_b', default="")
         query_c = self.request.GET.get('query_c', default="")
 
+        jockeys = None
+        stables = None
+        race_results = None
         if join_date_today == comparative_today:
             today_venue_id = [venue.id for venue in Venue.objects.filter(name=today_venue)] # 当日一開催場所のIDを取得[i]
             today_race_info = [today_race.id for today_race in RaceInfo.objects.filter(date=today, venue__in=today_venue_id)] # 日、場所指定[i]
@@ -128,7 +131,6 @@ class PickView(ListView):
             else:
                 race_results = RaceResults.objects.filter(racetable__in=tomorrow_race_table)
         else:
-            print('else')
             race_results = None
 
         ctx['jockeys'] = jockeys
@@ -152,9 +154,12 @@ class DateNextView(ListView): # 開催場所選択画面
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
+        search_date = None
+        join_date = None
+        search_venues = None
+
         query_date = self.request.GET.get('query_date', default="")
         join_date = query_date.replace('-', '')
-        search_venues = None
         if join_date:
             search_date = datetime.datetime.strptime(join_date, '%Y%m%d')
             search_date = search_date.strftime('%Y/%m/%d')
@@ -242,7 +247,6 @@ class VenueNextView(ListView):
             join_date = date.strftime('%Y%m%d') # ['20220206', '20220208', '20220212', '20220213']
             join_date_list.append(join_date)
         search_dates_dict = {k: v for k, v in zip(date_list, join_date_list)}
-        print('search_dates_dict', search_dates_dict, type(search_dates_dict))
 
         ctx['query_venue'] = query_venue
         ctx['search_dates_dict'] = search_dates_dict
@@ -324,26 +328,3 @@ def making(request):
 
 def use(request):
     return render(request, 'use.html')
-
-
-# ####################################################################################################
-
-# def sample(request):
-#     print("sample")
-#     date = datetime.datetime.strptime(join_date, '%Y%m%d')
-#     date = date.strftime('%Y/%m/%d')
-#     venues = RaceInfo.objects.filter(date=date).values('venue').distinct()
-#     venues = { 'venues': venues }
-#     return render(request, 'therace.html', venues)
-
-# def dispatch(self, request, *args, **kwargs,):
-#     print('DISPATCH')
-#     return super().dispatch(request, *args, **kwargs)
-
-# def get(self, request, *args, **kwargs):
-#     print('GET')
-#     return super().get(request, *args, **kwargs)
-
-# def post(self, request, *args, **kwargs):
-#     print('POST')
-#     return HttpResponse(200)

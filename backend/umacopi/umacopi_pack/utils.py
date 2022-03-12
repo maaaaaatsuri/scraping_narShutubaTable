@@ -6,13 +6,3 @@ class Utils():
         for block in data:
             for elem in block:
                 yield elem
-
-
-
-
-
-
-
-
-
-

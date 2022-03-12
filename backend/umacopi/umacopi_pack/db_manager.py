@@ -1,29 +1,29 @@
 from data_comparator import DataComparator
+# from umacopi_pack.data_comparator import DataComparator
 import sqlite3
 
 
 class DbManager():
-    def __init__(self, venue, date):
-        self.dbname = '/root/test/umacopi/web/db.sqlite3'
+    def __init__(self, dbname):
+        self.dbname = dbname
+
+    def save_db(self, venue, date, data):
         self.venue = venue
         self.date = date
-
-
-    def save_db(self, data):
         self.shutuba_table = data
         conn = sqlite3.connect(self.dbname)
         cur = conn.cursor()
 
-        # 開催場所テーブル（指定時の一回のみDB問い合わせ ⇒ データがなければINSERT実行）
+        # 開催場所テーブル（指定時の一回のみDB問い合わせ -> データがなければINSERT実行）
         sql_venue = 'SELECT name FROM umacopi_venue WHERE name = ?'
-        venue = cur.execute(sql_venue, (self.venue,)) # 第二引数は要素一つでもタプルで記述(,が必要)
+        venue = cur.execute(sql_venue, (self.venue,)) # -> 第二引数は要素一つでもタプルで記述(,が必要)
         venue = venue.fetchone()
         if venue == None:
-            print('『開催場所』テーブルに、新規の開催場所【', venue, '】を登録しました。')
+            print('『開催場所』テーブルに、新規の開催場所【', self.venue, '】を登録しました。')
             sql_insert = 'INSERT INTO umacopi_venue ([name]) VALUES(?)'
             cur.execute(sql_insert, (self.venue,))
 
-        # レース情報テーブル（指定時の一回のみDB問い合わせ ⇒ データがなければINSERT実行）
+        # レース情報テーブル（指定時の一回のみDB問い合わせ -> データがなければINSERT実行）
         self.venue_id = cur.execute('SELECT id FROM umacopi_venue WHERE name = ?', (self.venue,))
         self.venue_id = self.venue_id.fetchone()
         self.venue_id = self.venue_id[0] # id抽出        
@@ -31,11 +31,11 @@ class DbManager():
         raceinfo = cur.execute(sql_raceinfo, (self.date, self.venue_id))
         raceinfo = raceinfo.fetchone()
         if raceinfo == None:
-            print('『レース情報』テーブルに【', raceinfo, '】を登録しました。')
             sql_insert = 'INSERT INTO umacopi_raceinfo ([date], [venue_id]) VALUES(?, ?)'
             cur.execute(sql_insert, (self.date, self.venue_id))
 
-        for new_row in self.shutuba_table.itertuples(name=None): # 出走馬一頭単位で保存処理開始
+# ===== 出走馬一頭単位で保存処理開始（繰り返し）
+        for new_row in self.shutuba_table.itertuples(name=None):
             new_race_num = new_row[3]
             new_rank = new_row[4]
             new_frame = new_row[5]
@@ -52,7 +52,7 @@ class DbManager():
             jockey = cur.execute(sql_umacopi_jockey, (new_jockey,))
             jockey = jockey.fetchone()
             if jockey == None:
-                print('『騎手』テーブルに、新規の騎手【', jockey, '】を登録しました。')
+                print('『騎手』テーブルに、新規の騎手【', new_jockey, '】を登録しました。')
                 sql_insert = 'INSERT INTO umacopi_jockey ([name]) VALUES(?)'
                 cur.execute(sql_insert, (new_jockey,))
                 
@@ -60,7 +60,7 @@ class DbManager():
             mark = cur.execute(sql_umacopi_mark, (new_mark,))
             mark = mark.fetchone()
             if mark == None:
-                print('『印』テーブルに、新規の印【', mark, '】を登録しました。')
+                print('『印』テーブルに、新規の印【', new_mark, '】を登録しました。')
                 sql_insert = 'INSERT INTO umacopi_mark ([kind]) VALUES(?)'
                 cur.execute(sql_insert, (new_mark,))
 
@@ -68,11 +68,11 @@ class DbManager():
             stable = cur.execute(sql_umacopi_stable, (new_stable,))
             stable = stable.fetchone()
             if stable == None:
-                print('『厩舎』テーブルに、新規の厩舎【', stable, '】を登録しました。')
+                print('『厩舎』テーブルに、新規の厩舎【', new_stable, '】を登録しました。')
                 sql_insert = 'INSERT INTO umacopi_stable ([name]) VALUES(?)'
                 cur.execute(sql_insert, (new_stable,))
 
-# =============================     umacopi_racetable
+# ========= umacopi_racetable
             raceinfo_id = cur.execute('SELECT id FROM umacopi_raceinfo WHERE date = ? AND venue_id = ?', (self.date, self.venue_id))
             raceinfo_id = raceinfo_id.fetchone()
             raceinfo_id = raceinfo_id[0]
@@ -83,7 +83,7 @@ class DbManager():
                 sql_insert = 'INSERT INTO umacopi_racetable ([race_num], [raceinfo_id]) VALUES(?, ?)'
                 cur.execute(sql_insert, (new_race_num, raceinfo_id))
 
-# =============================     umacopi_raceresults
+# ========= umacopi_raceresults
             jockey_id = cur.execute('SELECT id FROM umacopi_jockey WHERE name = ?', (new_jockey,))
             jockey_id = jockey_id.fetchone()
             jockey_id = jockey_id[0]
@@ -119,7 +119,6 @@ class DbManager():
                     )
                 cur.execute(sql_insert, insert_data)
                 message_counts = 0
-
             else:
                 if not data_comparator.compare_data(new_data, old_data): # 差異あり
                     sql_update = 'UPDATE umacopi_raceresults SET rank = ?, odds = ?, popularity = ?, jockey_id = ?, mark_id = ? WHERE umaban = ? AND racetable_id = ?'
@@ -142,3 +141,4 @@ class DbManager():
         conn.commit()
         cur.close()
         conn.close()
+        return 0

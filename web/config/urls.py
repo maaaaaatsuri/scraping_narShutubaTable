@@ -1,8 +1,3 @@
-"""
-urls.pyは、表示するurlの指示を受けた時に（httprequestを受けたときに）、
-djangoが次にどのファイルを参照するのかを決める時に使います。
-"""
-
 """config URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -19,11 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-# from .views import HelloWorldView
+from django.urls import path, include, re_path
+from django.conf import settings
+from django.views.static import serve 
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('umacopi/', include('umacopi.urls')),
+    re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}), 
 ]

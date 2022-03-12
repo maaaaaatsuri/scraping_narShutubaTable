@@ -1,8 +1,7 @@
 
 
 class DataComparator():
-    def compare_data(self, new_data, old_data):
-
+    def compare_data(self, new_data: tuple, old_data: tuple) -> bool:
         if len(new_data) != len(old_data):
             return False
         else:
