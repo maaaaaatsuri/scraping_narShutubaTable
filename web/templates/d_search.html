@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    {% block title %}umacopi開催日検索{% endblock %}
+  </head>
+
+  <body>
+    {% block header %}<h1>日付から検索ページ</h1>{% endblock header %}
+    {% block contents %}
+    <div>
+        <form class="search-form" action="" method="get">
+            <div class="sort">
+                <div class="sort-01">
+                    <label class="label-01" for="">開催日を選択してください > ></label>
+                    <input type="date" name="query_date" id="query_date" required>
+                </div>
+            </div>
+            <div class="btn">
+                <button class="btn-01" type="submit" formaction='{% url "d_search_next" %}'>送 信</button>
+            </div>
+        </form>
+    </div>
+    {% endblock %}
+  </body>
+</html>

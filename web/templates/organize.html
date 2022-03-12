@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    {% block title %}umacopi編集2{% endblock %}
+  </head>
+
+  <body>
+    {% block header %}<h1>削除画面</h1>{% endblock %}
+    {% block contents %}
+    <div class="innerWrapper">
+      <h3>取得済みレース一覧</h3>
+      <table class="course">
+        <tbody>
+          <tr>
+            <th class="edit">編集内容を選択できます</th>
+          </tr>
+          <tr>
+            <td class="">
+              {% for object in object_list %}
+              <div>
+                <span class="edit-race">{{ object.date }} : {{ object.venue.name }} ></span>
+                <a href='{% url "detail_pk" object.pk %}?pk={{object.pk}}' class="delete-01">詳 細</a>
+                <a href='{% url "delete_pk" object.pk %}?pk={{object.pk}}' class="delete-01">削 除</a><br>
+              </div>
+              {% endfor %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="container">
+      <hr>
+      {% include "pagination.html" %}
+    </div>
+
+    {% endblock %}
+  </body>
+</html>

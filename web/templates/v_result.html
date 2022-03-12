@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+    <head>
+        {% block title %}umacopi開催場所検索結果{% endblock %}
+    </head>
+
+    <body>
+        {% block header %}<h1>出馬表一覧</h1>{% endblock header %}
+        {% block contents %}
+        <div>
+            <form class="search-form" action="" method="get">
+                <div class="sort">
+                    <div class="sort-01">
+                        <label class="label-01" for="">馬名で検索(馬名に一部を含む) > ></label>
+                        <input class="box-01" type="text" size="22" name="query_a" placeholder="指定されていません" autocomplete="off">
+                    </div>
+                    <div class="sort-01">
+                        <label class="label-02" for="">騎手で検索 > ></label>
+                        <input class="box-01" type="search" size="22" name="query_b" placeholder="指定されていません" autocomplete="off" list="jockey">
+                            <datalist id="jockey">
+                                {% for jockey in jockeys %}
+                                    <option value="{{ jockey.name }}">
+                                {% endfor %}
+                            </datalist>
+                    </div>
+                    <div class="sort-01">
+                        <label class="label-02" for="">厩舎で検索 > ></label>
+                        <input class="box-01" type="search" size="22" name="query_c" placeholder="指定されていません" autocomplete="off" list="stable">
+                            <datalist id="stable">
+                                {% for stable in stables %}
+                                    <option value="{{ stable.name }}">
+                                {% endfor %}
+                            </datalist>
+                    </div>
+                </div>
+                <input type="hidden" name="query_venue" value="{{ query_venue }}">
+                <div class="btn">
+                    <button class="btn-01" type="submit" name="query_date" value="{{ query_date }}">検 索</button>
+                </div>
+            </form>
+        </div>
+        <div>
+            <table border="1" class="table table-striped">
+                <tr class="t-head">
+                    <th>レース</th>
+                    <th>着順</th>
+                    <th>枠</th>
+                    <th>馬番</th>
+                    <th>逆番</th>
+                    <th>馬名</th>
+                    <th>印</th>
+                    <th>騎手</th>
+                    <th>厩舎</th>
+                    <th>単勝オッズ</th>
+                    <th>人気</th>
+                </tr>
+                {% for search_result in search_results %}
+                    <tr>
+                        <td>{{ search_result.racetable.race_num }}</td>
+                        <td class="num rank">{{ search_result.rank }}</td>
+                        <td class="num frame">{{ search_result.frame }}</td>
+                        <td class="num umaban">{{ search_result.umaban }}</td>
+                        <td class="num rev">{{ search_result.rev_umaban }}</td>
+                        <td class="horseName">{{ search_result.horse_name }}</td>
+                        <td>{{ search_result.mark }}</td>
+                        <td class="value jokey">{{ search_result.jockey }}</td>
+                        <td class="value stable">{{ search_result.stable }}</td>
+                        <td>{{ search_result.odds }}</td>
+                        <td>{{ search_result.popularity }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        {% endblock contents %}
+    </body>
+</html>
