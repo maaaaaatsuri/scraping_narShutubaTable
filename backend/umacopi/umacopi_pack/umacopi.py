@@ -147,7 +147,7 @@ class RaceInfoAnalyzer():
         pd.set_option('display.max_rows', 3)
         print('='*5, '【 レ ー ス 結 果 】', '='*80, '\n', self.shutuba_table, '\n')
 
-        dbname = '/root/test/umacopi/web/db.sqlite3'
+        dbname = '/root/umacopi/web/db.sqlite3'
         self.db_manager = DbManager(dbname)
         self.db_manager.save_db(self.venue, self.date, self.shutuba_table)
 
